@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blogpub
+  labels:
+    app: blogpub
+spec:
+  selector:
+    matchLabels:
+      app: blogpub
+  template:
+    metadata:
+      labels:
+        app: blogpub
+    spec:
+      containers:
+        - name: blogpub
+          image: localhost:32000/blogpub:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: blogpub-secret
+                  key: DATABASE_URL
+
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: blogpub-secret
+                  key: SECRET_KEY_BASE
+
+            - name: PHX_HOST
+              value: pub.ulfurinn.net
+
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blogpub
+  labels:
+    app: blogpub
+spec:
+  ports:
+    - port: 80
+      targetPort: 4000
+  selector:
+    app: blogpub
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: blogpub
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+spec:
+  tls:
+    - hosts:
+        - pub.ulfurinn.net
+      secretName: pub-ingress-tls
+  rules:
+    - host: pub.ulfurinn.net
+      http:
+        paths:
+          - backend:
+              service:
+                name: blogpub
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix

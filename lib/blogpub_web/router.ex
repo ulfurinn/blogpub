@@ -5,6 +5,10 @@ defmodule BlogpubWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/", BlogpubWeb do
+    get "/", Home.Controller, :index
+  end
+
   scope "/api", BlogpubWeb do
     pipe_through :api
   end
