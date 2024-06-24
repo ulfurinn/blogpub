@@ -4,10 +4,15 @@ defmodule BlogpubWeb.Webfinger.Controller do
   def resource(conn, %{"resource" => url}) do
     case Blogpub.Webfinger.resource(url) do
       %Blogpub.Webfinger.Resource{} = resource ->
-        conn |> render(:resource, resource: resource)
+        conn
+        |> put_resp_content_type("application/jrd+json")
+        |> render(:resource, resource: resource)
 
       :not_found ->
-        conn |> put_status(:not_found) |> put_resp_content_type("text/plain") |> text("")
+        conn
+        |> put_status(:not_found)
+        |> put_resp_content_type("text/plain")
+        |> text("")
     end
   end
 

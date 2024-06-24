@@ -16,7 +16,7 @@ kube:
 restart:
 	kubectl rollout restart deployment blogpub
 
-rollout: push kube restart
+deploy: push kube restart
 
 logs:
 	kubectl logs -f deployment/blogpub
