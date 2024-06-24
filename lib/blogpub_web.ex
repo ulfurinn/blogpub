@@ -57,6 +57,11 @@ defmodule BlogpubWeb do
     end
   end
 
+  def json do
+    quote do
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate controller/live_view/etc.
   """

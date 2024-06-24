@@ -6,11 +6,10 @@ defmodule BlogpubWeb.Router do
   end
 
   scope "/", BlogpubWeb do
-    get "/", Home.Controller, :index
-  end
-
-  scope "/api", BlogpubWeb do
     pipe_through :api
+    get "/", Home.Controller, :index
+
+    get "/.well-known/webfinger", Webfinger.Controller, :resource
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

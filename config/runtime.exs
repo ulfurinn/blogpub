@@ -65,6 +65,19 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  config :blogpub,
+    domain: System.get_env("BLOGPUB_DOMAIN"),
+    pub_domain: host,
+    host: "https://#{host}",
+    username: System.get_env("BLOGPUB_USERNAME"),
+    feeds:
+      System.get_env("BLOGPUB_FEEDS")
+      |> Enum.split(",")
+      |> Enum.map(fn feed ->
+        {feed, System.get_env("BLOGPUB_#{String.upcase(feed)}_FEED_URL")}
+      end)
+      |> Enum.into(%{})
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

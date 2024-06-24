@@ -9,6 +9,15 @@ config :blogpub, Blogpub.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :blogpub,
+  domain: "ulfurinn.net",
+  username: "ulfurinn",
+  host: "http://localhost:4000",
+  feeds: %{
+    "posts" => "https://ulfurinn.net/blog/index.xml",
+    "links" => "https://ulfurinn.net/links/index.xml"
+  }
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
