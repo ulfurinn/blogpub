@@ -72,7 +72,7 @@ if config_env() == :prod do
     username: System.get_env("BLOGPUB_USERNAME"),
     feeds:
       System.get_env("BLOGPUB_FEEDS")
-      |> Enum.split(",")
+      |> String.split(",")
       |> Enum.map(fn feed ->
         {feed, System.get_env("BLOGPUB_#{String.upcase(feed)}_FEED_URL")}
       end)
