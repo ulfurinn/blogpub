@@ -12,7 +12,7 @@ config :blogpub, Blogpub.Repo,
 config :blogpub,
   domain: "ulfurinn.net",
   username: "ulfurinn",
-  host: "http://localhost:4000",
+  host: "http://localhost:4511",
   feeds: %{
     "posts" => "https://ulfurinn.net/blog/index.xml",
     "links" => "https://ulfurinn.net/links/index.xml"
@@ -37,7 +37,7 @@ config :blogpub,
 config :blogpub, BlogpubWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {127, 0, 0, 1}, port: 4511],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
