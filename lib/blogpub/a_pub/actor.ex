@@ -9,7 +9,8 @@ defmodule Blogpub.APub.Actor do
       "https://www.w3.org/ns/activitystreams",
       "https://w3id.org/security/v1"
     ],
-    type: "Person"
+    type: "Person",
+    endpoints: %{}
   ]
 
   defimpl Jason.Encoder do

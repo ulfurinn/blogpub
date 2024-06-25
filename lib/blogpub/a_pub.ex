@@ -6,9 +6,12 @@ defmodule Blogpub.APub do
     %Actor{
       id: actor_url(qname),
       preferred_username: qname,
-      inbox: Blogpub.host() <> "/inbox",
-      outbox: Blogpub.host() <> "/outbox",
-      public_key: public_key(qname)
+      inbox: inbox_url(qname),
+      outbox: outbox_url(qname),
+      public_key: public_key(qname),
+      endpoints: %{
+        sharedInbox: shared_inbox_url()
+      }
     }
   end
 
@@ -23,4 +26,7 @@ defmodule Blogpub.APub do
   end
 
   def actor_url(qname), do: Blogpub.host() <> "/feed/" <> qname
+  def inbox_url(qname), do: Blogpub.host() <> "/feed/" <> qname <> "/inbox"
+  def outbox_url(qname), do: Blogpub.host() <> "/feed/" <> qname <> "/outbox"
+  def shared_inbox_url, do: Blogpub.host() <> "/inbox"
 end
