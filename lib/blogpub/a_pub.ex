@@ -4,7 +4,7 @@ defmodule Blogpub.APub do
 
   def actor(qname) do
     %Actor{
-      id: Blogpub.host() <> "/" <> qname,
+      id: actor_url(qname),
       preferred_username: qname,
       inbox: Blogpub.host() <> "/inbox",
       outbox: Blogpub.host() <> "/outbox",
@@ -16,9 +16,11 @@ defmodule Blogpub.APub do
     feed = Blogpub.feed(qname)
 
     %PublicKey{
-      id: Blogpub.host() <> "/" <> qname <> "#main-key",
-      owner: Blogpub.host() <> "/" <> qname,
+      id: actor_url(qname) <> "#main-key",
+      owner: actor_url(qname),
       public_key_pem: Application.get_env(:blogpub, :keys)[feed][:public]
     }
   end
+
+  def actor_url(qname), do: Blogpub.host() <> "/feed/" <> qname
 end

@@ -11,7 +11,7 @@ defmodule BlogpubWeb.Router do
 
     get "/.well-known/webfinger", Webfinger.Controller, :resource
 
-    get "/:qname", APub.Controller, :actor
+    get "/feed/:qname", APub.Controller, :actor
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

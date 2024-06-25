@@ -32,7 +32,7 @@ defmodule Blogpub.Webfinger do
     %Link{
       rel: "self",
       type: "application/activity+json",
-      href: Blogpub.host() <> "/" <> qname
+      href: Blogpub.APub.actor_url(qname)
     }
   end
 end
