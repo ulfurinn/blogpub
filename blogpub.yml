@@ -18,7 +18,7 @@ spec:
         - name: keys-volume
           secret:
             secretName: blogpub-keys
-            defaultMode: 256 # 0400
+            defaultMode: 0444
       containers:
         - name: blogpub
           image: localhost:32000/blogpub:latest
