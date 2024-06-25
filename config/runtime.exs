@@ -85,8 +85,8 @@ if config_env() == :prod do
       |> Enum.map(fn feed ->
         {feed,
          %{
-           private: File.read!(priv_dir <> "/" <> feed <> "-private.pem"),
-           public: File.read!(priv_dir <> "/" <> feed <> "-public.pem")
+           private: File.read!(priv_dir <> "/keys/" <> feed <> "-private.pem"),
+           public: File.read!(priv_dir <> "/keys/" <> feed <> "-public.pem")
          }}
       end)
       |> Enum.into(%{})
