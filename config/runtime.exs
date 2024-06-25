@@ -65,6 +65,8 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  priv_dir = List.to_string(:code.priv_dir(:blogpub))
+
   config :blogpub,
     domain: System.get_env("BLOGPUB_DOMAIN"),
     pub_domain: host,
@@ -75,6 +77,17 @@ if config_env() == :prod do
       |> String.split(",")
       |> Enum.map(fn feed ->
         {feed, System.get_env("BLOGPUB_#{String.upcase(feed)}_FEED_URL")}
+      end)
+      |> Enum.into(%{}),
+    keys:
+      System.get_env("BLOGPUB_FEEDS")
+      |> String.split(",")
+      |> Enum.map(fn feed ->
+        {feed,
+         %{
+           private: File.read!(priv_dir <> "/" <> feed <> "-private.pem"),
+           public: File.read!(priv_dir <> "/" <> feed <> "-public.pem")
+         }}
       end)
       |> Enum.into(%{})
 

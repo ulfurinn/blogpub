@@ -16,6 +16,16 @@ config :blogpub,
   feeds: %{
     "posts" => "https://ulfurinn.net/blog/index.xml",
     "links" => "https://ulfurinn.net/links/index.xml"
+  },
+  keys: %{
+    "posts" => %{
+      private: File.read!("posts-private.pem"),
+      public: File.read!("posts-public.pem")
+    },
+    "links" => %{
+      private: File.read!("links-private.pem"),
+      public: File.read!("links-public.pem")
+    }
   }
 
 # For development, we disable any cache and enable

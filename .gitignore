@@ -26,3 +26,4 @@ erl_crash.dump
 blogpub-*.tar
 
 secret.yml
+*.pem

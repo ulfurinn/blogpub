@@ -14,12 +14,21 @@ spec:
       labels:
         app: blogpub
     spec:
+      volumes:
+        - name: keys-volume
+          secret:
+            secretName: blogpub-keys
+            defaultMode: 256 # 0400
       containers:
         - name: blogpub
           image: localhost:32000/blogpub:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 4000
+          volumeMounts:
+            - name: keys-volume
+              readOnly: true
+              mountPath: "/app/lib/blogpub-0.1.0/priv/keys"
           env:
             - name: DATABASE_URL
               valueFrom:
