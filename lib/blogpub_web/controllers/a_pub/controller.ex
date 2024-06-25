@@ -4,6 +4,7 @@ defmodule BlogpubWeb.APub.Controller do
   def actor(conn, %{"qname" => qname}) do
     if Blogpub.has_user?(qname) do
       conn
+      |> put_resp_content_type("application/activity+json")
       |> render(:actor, actor: Blogpub.APub.actor(qname))
     else
       conn
