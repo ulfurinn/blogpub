@@ -38,6 +38,7 @@ defmodule Blogpub.MixProject do
       {:finch, "~> 0.13"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
+      {:oban, "~> 2.17"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:phoenix, "~> 1.7.14"},
