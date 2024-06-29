@@ -15,7 +15,8 @@ config :blogpub,
   host: "http://localhost:4511",
   feeds: %{
     "posts" => "https://ulfurinn.net/blog/index.xml",
-    "links" => "https://ulfurinn.net/links/index.xml"
+    "links" => "https://ulfurinn.net/links/index.xml",
+    "notes" => "https://ulfurinn.net/notes/index.xml"
   },
   keys: %{
     "posts" => %{
@@ -25,6 +26,10 @@ config :blogpub,
     "links" => %{
       private: File.read!("links-private.pem"),
       public: File.read!("links-public.pem")
+    },
+    "notes" => %{
+      private: File.read!("notes-private.pem"),
+      public: File.read!("notes-public.pem")
     }
   }
 

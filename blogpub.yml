@@ -52,13 +52,16 @@ spec:
               value: ulfurinn
 
             - name: BLOGPUB_FEEDS
-              value: posts,links
+              value: posts,links,notes
 
             - name: BLOGPUB_POSTS_FEED_URL
               value: https://ulfurinn.net/blog/index.xml
 
             - name: BLOGPUB_LINKS_FEED_URL
               value: https://ulfurinn.net/links/index.xml
+
+            - name: BLOGPUB_NOTES_FEED_URL
+              value: https://ulfurinn.net/notes/index.xml
 
           resources:
             limits:
