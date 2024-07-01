@@ -67,21 +67,23 @@ if config_env() == :prod do
 
   priv_dir = List.to_string(:code.priv_dir(:blogpub))
 
+  feeds =
+    System.get_env("BLOGPUB_FEEDS")
+    |> String.split(",")
+
   config :blogpub,
     domain: System.get_env("BLOGPUB_DOMAIN"),
     pub_domain: host,
     host: "https://#{host}",
     username: System.get_env("BLOGPUB_USERNAME"),
     feeds:
-      System.get_env("BLOGPUB_FEEDS")
-      |> String.split(",")
+      feeds
       |> Enum.map(fn feed ->
         {feed, System.get_env("BLOGPUB_#{String.upcase(feed)}_FEED_URL")}
       end)
       |> Enum.into(%{}),
     keys:
-      System.get_env("BLOGPUB_FEEDS")
-      |> String.split(",")
+      feeds
       |> Enum.map(fn feed ->
         {feed,
          %{
@@ -90,6 +92,13 @@ if config_env() == :prod do
          }}
       end)
       |> Enum.into(%{})
+
+  config :blogpub, Oban,
+    plugins: [
+      {Oban.Plugins.Pruner, max_age: 60 * 60},
+      {Oban.Plugins.Cron,
+       crontab: feeds |> Enum.map(&{"*/10 * * * *", Blogpub.Workers.FetchFeed, args: %{feed: &1}})}
+    ]
 
   # ## SSL Support
   #

@@ -37,15 +37,18 @@ defmodule Blogpub.MixProject do
       {:ecto_sql, "~> 3.10"},
       {:finch, "~> 0.13"},
       {:gettext, "~> 0.20"},
+      {:httpoison, "~> 2.0"},
       {:jason, "~> 1.2"},
       {:oban, "~> 2.17"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:phoenix, "~> 1.7.14"},
       {:postgrex, ">= 0.0.0"},
+      {:sweet_xml, "~> 0.7.4"},
       {:swoosh, "~> 1.5"},
       {:telemetry_metrics, "~> 1.0"},
-      {:telemetry_poller, "~> 1.0"}
+      {:telemetry_poller, "~> 1.0"},
+      {:uniq, "~> 0.1"}
     ]
   end
 

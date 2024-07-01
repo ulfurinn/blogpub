@@ -10,7 +10,7 @@ defmodule Blogpub.Application do
     children = [
       BlogpubWeb.Telemetry,
       Blogpub.Repo,
-      {Task, &Blogpub.Release.migrate/0},
+      Blogpub.Seed,
       {Oban, Application.fetch_env!(:blogpub, Oban)},
       {Phoenix.PubSub, name: Blogpub.PubSub},
       # Start the Finch HTTP client for sending emails
