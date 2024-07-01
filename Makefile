@@ -1,4 +1,4 @@
-.PHONY: image build push kube deploy restart
+.PHONY: image build push kube deploy logs sh iex restart
 
 image:
 	docker build -t blogpub .
@@ -23,5 +23,8 @@ logs:
 
 sh:
 	kubectl exec -it deployments/blogpub -- sh
+
+iex:
+	kubectl exec -it deployments/blogpub -- sh -c "/app/bin/blogpub remote"
 
 default: build
