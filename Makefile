@@ -10,7 +10,6 @@ push: image
 	docker push sage:32000/blogpub:latest
 
 kube:
-	kubectl apply -f secret.yml
 	kubectl apply -f blogpub.yml
 
 restart:
