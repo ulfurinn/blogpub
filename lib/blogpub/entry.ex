@@ -1,5 +1,6 @@
 defmodule Blogpub.Entry do
   use Ecto.Schema
+  import Ecto.Changeset
   alias __MODULE__
 
   @primary_key {:id, Uniq.UUID, version: 7, autogenerate: false}
@@ -15,11 +16,13 @@ defmodule Blogpub.Entry do
   end
 
   def from_object(feed, url, object) do
-    %Entry{
-      id: Uniq.UUID.uuid7(),
+    attrs = %{
       source_url: url,
       apub_data: object,
-      feed: feed
+      feed_id: feed.id
     }
+
+    %Entry{id: Uniq.UUID.uuid7()}
+    |> cast(attrs, [:source_url, :apub_data, :feed_id, :published_at])
   end
 end

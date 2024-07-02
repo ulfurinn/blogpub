@@ -9,6 +9,8 @@ config :blogpub, Blogpub.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+feeds = ~w/posts links notes/
+
 config :blogpub,
   domain: "ulfurinn.net",
   username: "ulfurinn",
@@ -18,20 +20,22 @@ config :blogpub,
     "links" => "https://ulfurinn.net/links/index.xml",
     "notes" => "https://ulfurinn.net/notes/index.xml"
   },
-  keys: %{
-    "posts" => %{
-      private: File.read!("posts-private.pem"),
-      public: File.read!("posts-public.pem")
-    },
-    "links" => %{
-      private: File.read!("links-private.pem"),
-      public: File.read!("links-public.pem")
-    },
-    "notes" => %{
-      private: File.read!("notes-private.pem"),
-      public: File.read!("notes-public.pem")
-    }
-  }
+  keys:
+    feeds
+    |> Enum.into(%{}, fn feed ->
+      {feed,
+       %{
+         private: File.read!("#{feed}-private.pem"),
+         public: File.read!("#{feed}-public.pem")
+       }}
+    end)
+
+config :blogpub, Oban,
+  plugins: [
+    {Oban.Plugins.Pruner, max_age: 60 * 60},
+    {Oban.Plugins.Cron,
+     crontab: feeds |> Enum.map(&{"*/10 * * * *", Blogpub.Workers.FetchFeed, args: %{feed: &1}})}
+  ]
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
