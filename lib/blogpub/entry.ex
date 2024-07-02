@@ -23,6 +23,6 @@ defmodule Blogpub.Entry do
     }
 
     %Entry{id: Uniq.UUID.uuid7()}
-    |> cast(attrs, [:source_url, :apub_data, :feed_id, :published_at])
+    |> cast(attrs, [:source_url, :apub_data, :feed_id])
   end
 end

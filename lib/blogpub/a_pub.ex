@@ -2,31 +2,29 @@ defmodule Blogpub.APub do
   alias Blogpub.APub.Actor
   alias Blogpub.APub.PublicKey
 
-  def actor(qname) do
+  def actor(feed) do
     %Actor{
-      id: actor_url(qname),
-      preferred_username: qname,
-      inbox: inbox_url(qname),
-      outbox: outbox_url(qname),
-      public_key: public_key(qname),
+      id: actor_url(feed),
+      preferred_username: feed,
+      inbox: inbox_url(feed),
+      outbox: outbox_url(feed),
+      public_key: public_key(feed),
       endpoints: %{
         sharedInbox: shared_inbox_url()
       }
     }
   end
 
-  def public_key(qname) do
-    feed = Blogpub.feed(qname)
-
+  def public_key(feed) do
     %PublicKey{
-      id: actor_url(qname) <> "#main-key",
-      owner: actor_url(qname),
+      id: actor_url(feed) <> "#main-key",
+      owner: actor_url(feed),
       public_key_pem: Application.get_env(:blogpub, :keys)[feed][:public]
     }
   end
 
-  def actor_url(qname), do: Blogpub.host() <> "/feed/" <> qname
-  def inbox_url(qname), do: Blogpub.host() <> "/feed/" <> qname <> "/inbox"
-  def outbox_url(qname), do: Blogpub.host() <> "/feed/" <> qname <> "/outbox"
+  def actor_url(feed), do: Blogpub.host() <> "/feed/" <> feed
+  def inbox_url(feed), do: Blogpub.host() <> "/feed/" <> feed <> "/inbox"
+  def outbox_url(feed), do: Blogpub.host() <> "/feed/" <> feed <> "/outbox"
   def shared_inbox_url, do: Blogpub.host() <> "/inbox"
 end

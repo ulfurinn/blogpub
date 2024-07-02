@@ -10,21 +10,12 @@ defmodule Blogpub do
   def host, do: Application.get_env(:blogpub, :host)
   def domain, do: Application.get_env(:blogpub, :domain)
   def pub_domain, do: Application.get_env(:blogpub, :pub_domain) || domain()
-  def username, do: Application.get_env(:blogpub, :username)
   def feeds, do: Application.get_env(:blogpub, :feeds)
   def feed_names, do: feeds() |> Map.keys()
 
-  def feed(qname) do
-    [_, feed] = String.split(qname, "-", parts: 2)
-    feed
-  end
-
   def own_domain?(domain), do: domain == domain() || domain == pub_domain()
 
-  def has_user?(qname) do
-    case String.split(qname, "-", parts: 2) do
-      [name, feed] -> name == username() && feed in feed_names()
-      _ -> false
-    end
+  def has_feed?(feed) do
+    feed in feed_names()
   end
 end

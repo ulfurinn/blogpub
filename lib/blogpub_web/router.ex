@@ -11,9 +11,9 @@ defmodule BlogpubWeb.Router do
 
     get "/.well-known/webfinger", Webfinger.Controller, :resource
 
-    get "/feed/:qname", APub.Controller, :actor
-    post "/feed/:qname/inbox", APub.Controller, :inbox
-    get "/feed/:qname/outbox", APub.Controller, :outbox
+    get "/feed/:feed", APub.Controller, :actor
+    post "/feed/:feed/inbox", APub.Controller, :inbox
+    get "/feed/:feed/outbox", APub.Controller, :outbox
 
     post "/inbox", APub.Controller, :shared_inbox
   end

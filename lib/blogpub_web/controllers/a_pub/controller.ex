@@ -1,11 +1,11 @@
 defmodule BlogpubWeb.APub.Controller do
   use BlogpubWeb, :controller
 
-  def actor(conn, %{"qname" => qname}) do
-    if Blogpub.has_user?(qname) do
+  def actor(conn, %{"feed" => feed}) do
+    if Blogpub.has_feed?(feed) do
       conn
       |> put_resp_content_type("application/activity+json")
-      |> render(:actor, actor: Blogpub.APub.actor(qname))
+      |> render(:actor, actor: Blogpub.APub.actor(feed))
     else
       conn
       |> put_status(:not_found)

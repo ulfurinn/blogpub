@@ -16,23 +16,23 @@ defmodule Blogpub.Webfinger do
 
   def resource(uri) do
     with %URI{scheme: "acct", path: path} <- URI.parse(uri),
-         [qname, domain] <- String.split(path, "@", parts: 2),
+         [feed, domain] <- String.split(path, "@", parts: 2),
          true <- Blogpub.own_domain?(domain),
-         true <- Blogpub.has_user?(qname) do
+         true <- Blogpub.has_feed?(feed) do
       %Resource{
-        subject: "acct:" <> qname <> "@" <> Blogpub.domain(),
-        links: [actor_link(qname)]
+        subject: "acct:" <> feed <> "@" <> Blogpub.domain(),
+        links: [actor_link(feed)]
       }
     else
       _ -> :not_found
     end
   end
 
-  defp actor_link(qname) do
+  defp actor_link(feed) do
     %Link{
       rel: "self",
       type: "application/activity+json",
-      href: Blogpub.APub.actor_url(qname)
+      href: Blogpub.APub.actor_url(feed)
     }
   end
 end

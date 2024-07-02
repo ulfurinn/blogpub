@@ -75,7 +75,6 @@ if config_env() == :prod do
     domain: System.get_env("BLOGPUB_DOMAIN"),
     pub_domain: host,
     host: "https://#{host}",
-    username: System.get_env("BLOGPUB_USERNAME"),
     feeds:
       feeds
       |> Enum.map(fn feed ->

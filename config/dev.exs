@@ -13,7 +13,6 @@ feeds = ~w/posts links notes/
 
 config :blogpub,
   domain: "ulfurinn.net",
-  username: "ulfurinn",
   host: "http://localhost:4511",
   feeds: %{
     "posts" => "https://ulfurinn.net/blog/index.xml",

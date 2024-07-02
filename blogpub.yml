@@ -48,9 +48,6 @@ spec:
             - name: BLOGPUB_DOMAIN
               value: ulfurinn.net
 
-            - name: BLOGPUB_USERNAME
-              value: ulfurinn
-
             - name: BLOGPUB_FEEDS
               value: posts,links,notes
 
