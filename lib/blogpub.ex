@@ -7,6 +7,10 @@ defmodule Blogpub do
   if it comes from the database, an external API or others.
   """
 
+  import Ecto.Query
+  alias Blogpub.Feed
+  alias Blogpub.Repo
+
   def host, do: Application.get_env(:blogpub, :host)
   def domain, do: Application.get_env(:blogpub, :domain)
   def pub_domain, do: Application.get_env(:blogpub, :pub_domain) || domain()
@@ -17,5 +21,15 @@ defmodule Blogpub do
 
   def has_feed?(feed) do
     feed in feed_names()
+  end
+
+  def feed_with_entries(feed) do
+    from(f in Feed,
+      join: e in assoc(f, :entries),
+      where: f.cname == ^feed,
+      preload: [entries: e],
+      order_by: [desc: e.apub_data["published"]]
+    )
+    |> Repo.one()
   end
 end

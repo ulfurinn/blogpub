@@ -9,6 +9,8 @@ defmodule Blogpub.Feed do
   schema "feeds" do
     field :cname, :string
 
+    has_many :entries, Blogpub.Entry
+
     timestamps()
   end
 
