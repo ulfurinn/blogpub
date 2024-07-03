@@ -1,6 +1,7 @@
 defmodule Blogpub.InboxRequest do
   import Plug.Conn, only: [get_req_header: 2]
   alias __MODULE__
+  require Logger
 
   defstruct [
     :raw_body,
@@ -43,6 +44,8 @@ defmodule Blogpub.InboxRequest do
         Blogpub.HttpSignature.verify(signature, key)
 
       :missing_key ->
+        Logger.warning("could not fetch key #{signature.key_id}")
+
         if can_discard?(request) do
           :discard
         else
