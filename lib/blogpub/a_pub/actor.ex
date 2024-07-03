@@ -8,6 +8,7 @@ defmodule Blogpub.APub.Actor do
     :inbox,
     :outbox,
     :public_key,
+    :icon,
     context: [
       "https://www.w3.org/ns/activitystreams",
       "https://w3id.org/security/v1"

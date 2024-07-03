@@ -54,6 +54,9 @@ spec:
             - name: BLOGPUB_NAME
               value: Valeri Sokolov
 
+            - name: BLOGPUB_GRAVATAR_EMAIL
+              value: ulfurinn@ulfurinn.net
+
             - name: BLOGPUB_FEEDS
               value: posts,links,notes
 

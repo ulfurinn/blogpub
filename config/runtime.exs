@@ -75,6 +75,7 @@ if config_env() == :prod do
     domain: System.get_env("BLOGPUB_DOMAIN"),
     website: System.get_env("BLOGPUB_WEBSITE"),
     name: System.get_env("BLOGPUB_NAME"),
+    gravatar_email: System.get_env("BLOGPUB_GRAVATAR_EMAIL"),
     pub_domain: host,
     host: "https://#{host}",
     feeds:

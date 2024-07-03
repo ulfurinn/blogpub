@@ -20,6 +20,17 @@ defmodule Blogpub do
   def feeds, do: Application.get_env(:blogpub, :feeds)
   def feed_names, do: feeds() |> Map.keys()
 
+  def gravatar_url do
+    email = Application.get_env(:blogpub, :gravatar_email)
+
+    hash =
+      :crypto.hash(:sha256, email)
+      |> Base.encode16()
+      |> String.downcase()
+
+    "https://gravatar.com/avatar/#{hash}"
+  end
+
   def own_domain?(domain), do: domain == domain() || domain == pub_domain()
 
   def has_feed?(feed) do

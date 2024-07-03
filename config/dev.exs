@@ -14,6 +14,7 @@ config :blogpub,
   website: "https://ulfurinn.net",
   name: "Valeri Sokolov",
   host: "http://localhost:4511",
+  gravatar_email: "ulfurinn@ulfurinn.net",
   feeds: %{
     "posts" => %{
       atom: "https://ulfurinn.net/blog/index.xml",

@@ -15,6 +15,7 @@ defmodule Blogpub.APub do
       name: Blogpub.name(feed),
       summary: Blogpub.description(feed),
       url: Blogpub.website(),
+      icon: [Blogpub.gravatar_url()],
       inbox: inbox_url(feed),
       outbox: outbox_url(feed),
       public_key: public_key(feed),
