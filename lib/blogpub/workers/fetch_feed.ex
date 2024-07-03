@@ -14,7 +14,7 @@ defmodule Blogpub.Workers.FetchFeed do
 
   def perform(%Job{args: %{"feed" => feed}}) do
     feed = from(f in Blogpub.Feed, where: f.cname == ^feed) |> Repo.one!()
-    url = Blogpub.feeds()[feed.cname]
+    url = Blogpub.feeds()[feed.cname].atom
 
     case HTTPoison.get(url) do
       {:ok, resp = %HTTPoison.Response{status_code: 200}} ->
