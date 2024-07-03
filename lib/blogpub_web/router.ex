@@ -15,7 +15,7 @@ defmodule BlogpubWeb.Router do
     post "/feed/:feed/inbox", APub.Controller, :inbox
     get "/feed/:feed/outbox", APub.Controller, :outbox
 
-    post "/inbox", APub.Controller, :shared_inbox
+    post "/inbox", APub.Controller, :inbox
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
