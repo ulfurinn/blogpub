@@ -12,6 +12,9 @@ defmodule Blogpub.APub do
     %Actor{
       id: actor_url(feed),
       preferred_username: feed,
+      name: Blogpub.name(feed),
+      summary: Blogpub.description(feed),
+      url: Blogpub.website(),
       inbox: inbox_url(feed),
       outbox: outbox_url(feed),
       public_key: public_key(feed),
@@ -25,7 +28,7 @@ defmodule Blogpub.APub do
     %PublicKey{
       id: actor_url(feed) <> "#main-key",
       owner: actor_url(feed),
-      public_key_pem: Application.get_env(:blogpub, :keys)[feed][:public]
+      public_key_pem: Application.get_env(:blogpub, :feeds)[feed].keys.public
     }
   end
 

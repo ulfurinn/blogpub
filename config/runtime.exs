@@ -73,22 +73,23 @@ if config_env() == :prod do
 
   config :blogpub,
     domain: System.get_env("BLOGPUB_DOMAIN"),
+    website: System.get_env("BLOGPUB_WEBSITE"),
+    name: System.get_env("BLOGPUB_NAME"),
     pub_domain: host,
     host: "https://#{host}",
     feeds:
       feeds
       |> Enum.map(fn feed ->
-        {feed, System.get_env("BLOGPUB_#{String.upcase(feed)}_FEED_URL")}
-      end)
-      |> Enum.into(%{}),
-    keys:
-      feeds
-      |> Enum.map(fn feed ->
-        {feed,
-         %{
-           private: File.read!(priv_dir <> "/keys/" <> feed <> "-private.pem"),
-           public: File.read!(priv_dir <> "/keys/" <> feed <> "-public.pem")
-         }}
+        config = %{
+          atom: System.get_env("BLOGPUB_#{String.upcase(feed)}_FEED_URL"),
+          description: System.get_env("BLOGPUB_#{String.upcase(feed)}_DESCRIPTION"),
+          keys: %{
+            private: File.read!(priv_dir <> "/keys/" <> feed <> "-private.pem"),
+            public: File.read!(priv_dir <> "/keys/" <> feed <> "-public.pem")
+          }
+        }
+
+        {feed, config}
       end)
       |> Enum.into(%{})
 

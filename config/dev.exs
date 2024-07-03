@@ -9,31 +9,45 @@ config :blogpub, Blogpub.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-feeds = ~w/posts links notes/
-
 config :blogpub,
   domain: "ulfurinn.net",
+  website: "https://ulfurinn.net",
+  name: "Valeri Sokolov",
   host: "http://localhost:4511",
   feeds: %{
-    "posts" => "https://ulfurinn.net/blog/index.xml",
-    "links" => "https://ulfurinn.net/links/index.xml",
-    "notes" => "https://ulfurinn.net/notes/index.xml"
-  },
-  keys:
-    feeds
-    |> Enum.into(%{}, fn feed ->
-      {feed,
-       %{
-         private: File.read!("#{feed}-private.pem"),
-         public: File.read!("#{feed}-public.pem")
-       }}
-    end)
+    "posts" => %{
+      atom: "https://ulfurinn.net/blog/index.xml",
+      description: "ActivityPub mirror for the blog feed",
+      keys: %{
+        private: File.read!("posts-private.pem"),
+        public: File.read!("posts-public.pem")
+      }
+    },
+    "links" => %{
+      atom: "https://ulfurinn.net/links/index.xml",
+      description: "ActivityPub mirror for the link feed",
+      keys: %{
+        private: File.read!("links-private.pem"),
+        public: File.read!("links-public.pem")
+      }
+    },
+    "notes" => %{
+      atom: "https://ulfurinn.net/notes/index.xml",
+      description: "ActivityPub mirror for the note feed",
+      keys: %{
+        private: File.read!("notes-private.pem"),
+        public: File.read!("notes-public.pem")
+      }
+    }
+  }
 
 config :blogpub, Oban,
   plugins: [
     {Oban.Plugins.Pruner, max_age: 60 * 60},
     {Oban.Plugins.Cron,
-     crontab: feeds |> Enum.map(&{"*/10 * * * *", Blogpub.Workers.FetchFeed, args: %{feed: &1}})}
+     crontab:
+       ~w/posts links notes/
+       |> Enum.map(&{"*/10 * * * *", Blogpub.Workers.FetchFeed, args: %{feed: &1}})}
   ]
 
 # For development, we disable any cache and enable

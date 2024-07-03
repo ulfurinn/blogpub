@@ -48,17 +48,32 @@ spec:
             - name: BLOGPUB_DOMAIN
               value: ulfurinn.net
 
+            - name: BLOGPUB_WEBSITE
+              value: https://ulfurinn.net/
+
+            - name: BLOGPUB_NAME
+              value: Valeri Sokolov
+
             - name: BLOGPUB_FEEDS
               value: posts,links,notes
 
             - name: BLOGPUB_POSTS_FEED_URL
               value: https://ulfurinn.net/blog/index.xml
 
+            - name: BLOGPUB_POSTS_DESCRIPTION
+              value: ActivityPub mirror for the blog feed
+
             - name: BLOGPUB_LINKS_FEED_URL
               value: https://ulfurinn.net/links/index.xml
 
+            - name: BLOGPUB_LINKS_DESCRIPTION
+              value: ActivityPub mirror for the link feed
+
             - name: BLOGPUB_NOTES_FEED_URL
               value: https://ulfurinn.net/notes/index.xml
+
+            - name: BLOGPUB_NOTES_DESCRIPTION
+              value: ActivityPub mirror for the note feed
 
           resources:
             limits:

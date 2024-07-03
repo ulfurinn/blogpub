@@ -2,6 +2,9 @@ defmodule Blogpub.APub.Actor do
   defstruct [
     :id,
     :preferred_username,
+    :name,
+    :summary,
+    :url,
     :inbox,
     :outbox,
     :public_key,

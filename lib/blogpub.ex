@@ -11,8 +11,11 @@ defmodule Blogpub do
   alias Blogpub.Feed
   alias Blogpub.Repo
 
+  def name(feed), do: Application.get_env(:blogpub, :name) <> " · " <> feed
+  def description(feed), do: Application.get_env(:blogpub, :feeds)[feed].description
   def host, do: Application.get_env(:blogpub, :host)
   def domain, do: Application.get_env(:blogpub, :domain)
+  def website, do: Application.get_env(:blogpub, :website)
   def pub_domain, do: Application.get_env(:blogpub, :pub_domain) || domain()
   def feeds, do: Application.get_env(:blogpub, :feeds)
   def feed_names, do: feeds() |> Map.keys()
