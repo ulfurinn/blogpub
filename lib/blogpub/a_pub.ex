@@ -1,6 +1,7 @@
 defmodule Blogpub.APub do
   alias Blogpub.APub.Activity
   alias Blogpub.APub.Actor
+  alias Blogpub.APub.Image
   alias Blogpub.APub.Object
   alias Blogpub.APub.Outbox
   alias Blogpub.APub.PublicKey
@@ -15,7 +16,7 @@ defmodule Blogpub.APub do
       name: Blogpub.name(feed),
       summary: Blogpub.description(feed),
       url: Blogpub.website(),
-      icon: [Blogpub.gravatar_url()],
+      icon: %Image{mediaType: "image/jpeg", url: Blogpub.gravatar_url()},
       inbox: inbox_url(feed),
       outbox: outbox_url(feed),
       public_key: public_key(feed),
