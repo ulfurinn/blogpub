@@ -67,7 +67,7 @@ defmodule BlogpubWeb.APub.Controller do
 
     conn
     |> put_resp_content_type("application/activity+json")
-    |> render(:actor, actor: APub.outbox(outbox))
+    |> render(:outbox, outbox: APub.outbox(outbox))
   end
 
   defp verify_digest(conn) do

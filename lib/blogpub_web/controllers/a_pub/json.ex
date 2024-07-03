@@ -4,4 +4,8 @@ defmodule BlogpubWeb.APub.JSON do
   def actor(%{actor: actor}) do
     actor
   end
+
+  def outbox(%{outbox: outbox}) do
+    outbox
+  end
 end

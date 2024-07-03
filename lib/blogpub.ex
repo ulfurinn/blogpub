@@ -8,6 +8,7 @@ defmodule Blogpub do
   """
 
   import Ecto.Query
+  alias Blogpub.Entry
   alias Blogpub.Feed
   alias Blogpub.Repo
 
@@ -28,7 +29,7 @@ defmodule Blogpub do
       |> Base.encode16()
       |> String.downcase()
 
-    "https://gravatar.com/avatar/#{hash}"
+    "https://gravatar.com/avatar/#{hash}.jpg"
   end
 
   def own_domain?(domain), do: domain == domain() || domain == pub_domain()
@@ -38,11 +39,11 @@ defmodule Blogpub do
   end
 
   def feed_with_entries(feed) do
+    entries = from(e in Entry, order_by: [desc: e.apub_data["published"]])
+
     from(f in Feed,
-      join: e in assoc(f, :entries),
       where: f.cname == ^feed,
-      preload: [entries: e],
-      order_by: [desc: e.apub_data["published"]]
+      preload: [entries: ^entries]
     )
     |> Repo.one()
   end
