@@ -13,6 +13,8 @@ defmodule Blogpub.Workers.FetchFeed do
   end
 
   def perform(%Job{args: %{"feed" => feed}}) do
+    Logger.info("fetching feed #{feed}")
+
     feed = from(f in Blogpub.Feed, where: f.cname == ^feed) |> Repo.one!()
     url = Blogpub.feeds()[feed.cname].atom
 
@@ -50,7 +52,7 @@ defmodule Blogpub.Workers.FetchFeed do
     Logger.info("fetching #{url} from feed #{feed.cname}")
 
     with {:ok, resp = %HTTPoison.Response{status_code: 200}} <-
-           HTTPoison.get(url, %{"accept" => "application/activity+json"}),
+           HTTPoison.get(url, %{"accept" => "application/x-blogpub-partial"}),
          {:ok, object} <- Jason.decode(resp.body) do
       entry = Blogpub.Entry.from_object(feed, url, object)
       Repo.insert(entry)
