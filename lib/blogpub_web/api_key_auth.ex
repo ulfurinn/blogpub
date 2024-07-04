@@ -3,17 +3,20 @@ defmodule BlogpubWeb.ApiKeyAuth do
   @behaviour Plug
 
   def init(_) do
-    %{api_key: Blogpub.api_key()}
+    nil
   end
 
-  def call(conn, %{api_key: nil}) do
-    conn
+  def call(conn, _) do
+    key = Blogpub.api_key()
+    check(conn, key)
   end
 
-  def call(conn, %{api_key: key}) do
+  defp check(conn, nil), do: conn
+
+  defp check(conn, key) do
     case get_req_header(conn, "x-blogpub-api-key") do
       [^key] -> conn
-      _ -> conn |> put_status(401) |> halt()
+      _ -> conn |> resp(401, "") |> halt()
     end
   end
 end
