@@ -84,6 +84,20 @@ defmodule Blogpub.HttpSignature do
     {:ok, "#{String.downcase(conn.method)} #{conn.request_path}"}
   end
 
+  defp get_header(conn, "host") do
+    case Plug.Conn.get_req_header(conn, "x-forwarded-host") do
+      [value] ->
+        {:ok, value}
+
+      [] ->
+        case Plug.Conn.get_req_header(conn, "host") do
+          [value] -> {:ok, value}
+          [] -> {:missing_header, "host"}
+          _ -> {:multiple_headers, "host"}
+        end
+    end
+  end
+
   defp get_header(conn, header) do
     case Plug.Conn.get_req_header(conn, header) do
       [value] -> {:ok, value}
