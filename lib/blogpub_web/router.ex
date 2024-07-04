@@ -3,6 +3,7 @@ defmodule BlogpubWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug BlogpubWeb.ApiKeyAuth
   end
 
   scope "/", BlogpubWeb do

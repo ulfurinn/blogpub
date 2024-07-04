@@ -12,6 +12,8 @@ defmodule Blogpub do
   alias Blogpub.Feed
   alias Blogpub.Repo
 
+  def api_key, do: Application.get_env(:blogpub, :api_key)
+
   def name(feed), do: Application.get_env(:blogpub, :name) <> " · " <> feed
   def description(feed), do: Application.get_env(:blogpub, :feeds)[feed].description
   def host, do: Application.get_env(:blogpub, :host)

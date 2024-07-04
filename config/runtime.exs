@@ -72,6 +72,7 @@ if config_env() == :prod do
     |> String.split(",")
 
   config :blogpub,
+    api_key: System.get_env("BLOGPUB_API_KEY"),
     domain: System.get_env("BLOGPUB_DOMAIN"),
     website: System.get_env("BLOGPUB_WEBSITE"),
     name: System.get_env("BLOGPUB_NAME"),
