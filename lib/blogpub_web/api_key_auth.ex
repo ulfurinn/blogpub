@@ -16,7 +16,7 @@ defmodule BlogpubWeb.ApiKeyAuth do
   defp check(conn, key) do
     case get_req_header(conn, "x-blogpub-api-key") do
       [^key] -> conn
-      _ -> conn |> resp(401, "") |> halt()
+      _ -> conn |> resp(403, "") |> halt()
     end
   end
 end
