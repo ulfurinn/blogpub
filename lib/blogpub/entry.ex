@@ -1,11 +1,6 @@
 defmodule Blogpub.Entry do
-  use Ecto.Schema
-  import Ecto.Changeset
-  alias __MODULE__
+  use Blogpub.Schema
 
-  @primary_key {:id, Uniq.UUID, version: 7, autogenerate: false}
-  @foreign_key_type Uniq.UUID
-  @timestamps_opts [type: :utc_datetime]
   schema "entries" do
     field :source_url, :string
     field :apub_data, :map

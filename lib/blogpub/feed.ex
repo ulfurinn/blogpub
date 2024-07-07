@@ -1,15 +1,12 @@
 defmodule Blogpub.Feed do
-  use Ecto.Schema
-  import Ecto.Changeset
-  alias __MODULE__
+  use Blogpub.Schema
 
-  @primary_key {:id, Uniq.UUID, version: 7, autogenerate: false}
-  @foreign_key_type Uniq.UUID
-  @timestamps_opts [type: :utc_datetime]
   schema "feeds" do
     field :cname, :string
 
     has_many :entries, Blogpub.Entry
+
+    many_to_many :followers, Blogpub.Actor, join_through: "followers"
 
     timestamps()
   end
