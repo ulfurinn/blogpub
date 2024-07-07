@@ -57,6 +57,11 @@ defmodule Blogpub.InboxRequest do
     end
   end
 
+  def handle(request = %InboxRequest{}) do
+    dbg({:processing, request})
+    :ok
+  end
+
   defp get_digest_header(conn) do
     case get_req_header(conn, "digest") do
       [] -> {:ok, nil}

@@ -26,13 +26,13 @@ defmodule BlogpubWeb.APub.Controller do
   def inbox(conn, _params) do
     request = Blogpub.InboxRequest.from_plug_conn!(conn)
 
-    case request |> Blogpub.InboxRequest.verify_signature() |> dbg do
-      :ok ->
-        conn
-        |> put_status(:ok)
-        |> put_resp_content_type("text/plain")
-        |> text("")
-
+    with :ok <- request |> Blogpub.InboxRequest.verify_signature(),
+         :ok <- request |> Blogpub.InboxRequest.handle() do
+      conn
+      |> put_status(:ok)
+      |> put_resp_content_type("text/plain")
+      |> text("")
+    else
       :missing_signature ->
         conn
         |> put_status(:bad_request)
