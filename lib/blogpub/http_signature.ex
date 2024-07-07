@@ -39,7 +39,7 @@ defmodule Blogpub.HttpSignature do
     signed_string =
       headers |> Enum.map(fn header -> "#{header}: #{data[header]}" end) |> Enum.join("\n")
 
-    with {:ok, digest} <- digest(signature),
+    with {:ok, digest} <- signature_algorithm(signature),
          {:ok, decoded} <- base64_decode(given_signature) do
       do_verify(signed_string, digest, decoded, key)
     else
@@ -98,11 +98,34 @@ defmodule Blogpub.HttpSignature do
     end
   end
 
+  defp get_header(conn, "digest") do
+    with [digest] <- Plug.Conn.get_req_header(conn, "digest"),
+         [algo, digest] <- String.split(digest, "=", parts: 2),
+         {:ok, algo} <- hash_algorithm(String.downcase(algo)),
+         :ok <- verify_digest(conn, algo, digest) do
+      {:ok, digest}
+    else
+      [] -> {:missing_header, "digest"}
+      err -> err
+    end
+  end
+
   defp get_header(conn, header) do
     case Plug.Conn.get_req_header(conn, header) do
       [value] -> {:ok, value}
       [] -> {:missing_header, header}
       _ -> {:multiple_headers, header}
+    end
+  end
+
+  defp verify_digest(conn, algo, digest) do
+    body = BlogpubWeb.CachingReader.body(conn)
+    calculated = :crypto.hash(algo, body) |> Base.encode64()
+
+    if calculated == digest do
+      :ok
+    else
+      {:digest_mismatch, digest, calculated}
     end
   end
 
@@ -113,11 +136,16 @@ defmodule Blogpub.HttpSignature do
     end
   end
 
-  defp digest(%HttpSignature{algorithm: algorithm}), do: digest(algorithm)
-  defp digest("rsa-sha1"), do: {:ok, :sha1}
-  defp digest("rsa-sha224"), do: {:ok, :sha224}
-  defp digest("rsa-sha256"), do: {:ok, :sha256}
-  defp digest("rsa-sha384"), do: {:ok, :sha384}
-  defp digest("rsa-sha512"), do: {:ok, :sha512}
-  defp digest(_), do: :unsupported_signature_algorithm
+  defp hash_algorithm("sha-256"), do: {:ok, :sha256}
+  defp hash_algorithm(algo), do: {:unsupported_hash_algorithm, algo}
+
+  defp signature_algorithm(%HttpSignature{algorithm: algorithm}),
+    do: signature_algorithm(algorithm)
+
+  defp signature_algorithm("rsa-sha1"), do: {:ok, :sha1}
+  defp signature_algorithm("rsa-sha224"), do: {:ok, :sha224}
+  defp signature_algorithm("rsa-sha256"), do: {:ok, :sha256}
+  defp signature_algorithm("rsa-sha384"), do: {:ok, :sha384}
+  defp signature_algorithm("rsa-sha512"), do: {:ok, :sha512}
+  defp signature_algorithm(algo), do: {:unsupported_signature_algorithm, algo}
 end

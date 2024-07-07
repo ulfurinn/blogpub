@@ -25,7 +25,6 @@ defmodule BlogpubWeb.APub.Controller do
 
   def inbox(conn, _params) do
     request = Blogpub.InboxRequest.from_plug_conn!(conn)
-    dbg(digest: verify_digest(conn))
 
     case request |> Blogpub.InboxRequest.verify_signature() |> dbg do
       :ok ->
@@ -68,38 +67,5 @@ defmodule BlogpubWeb.APub.Controller do
     conn
     |> put_resp_content_type("application/activity+json")
     |> render(:outbox, outbox: APub.outbox(outbox))
-  end
-
-  defp verify_digest(conn) do
-    with {:ok, algo, digest} <- get_digest(conn) do
-      verify_digest(conn, algo, digest)
-    else
-      err -> err
-    end
-  end
-
-  defp verify_digest(conn, "sha-256", digest) do
-    body = BlogpubWeb.CachingReader.body(conn)
-    calculated = :crypto.hash(:sha256, body) |> Base.encode64()
-
-    if calculated == digest do
-      :ok
-    else
-      {:digest_mismatch, digest, calculated}
-    end
-  end
-
-  defp verify_digest(_, algo, _) do
-    {:unknown_digest_algorithm, algo}
-  end
-
-  defp get_digest(conn) do
-    with [digest] <- get_req_header(conn, "digest"),
-         [algo, digest] <- String.split(digest, "=", parts: 2) do
-      {:ok, String.downcase(algo), digest}
-    else
-      [] -> :missing_digest
-      _ -> :malformed_digest_header
-    end
   end
 end
