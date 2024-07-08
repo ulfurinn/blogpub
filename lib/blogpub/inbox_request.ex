@@ -1,6 +1,9 @@
 defmodule Blogpub.InboxRequest do
+  import Ecto.Query
   import Plug.Conn, only: [get_req_header: 2]
   alias __MODULE__
+  alias Blogpub.Collection
+  alias Blogpub.Repo
   require Logger
 
   defstruct [
@@ -57,8 +60,27 @@ defmodule Blogpub.InboxRequest do
     end
   end
 
-  def handle(request = %InboxRequest{}) do
-    dbg({:processing, request})
+  def handle(request = %InboxRequest{}, feed) do
+    inbox =
+      if feed do
+        q =
+          from c in Collection,
+            join: f in assoc(c, :feed),
+            where: f.cname == ^feed
+
+        Repo.one(q)
+      else
+        nil
+      end
+
+    activity =
+      if inbox do
+        Ecto.build_assoc(inbox, :activities, id: Uniq.UUID.uuid7(), content: request.body)
+      else
+        %Blogpub.Activity{id: Uniq.UUID.uuid7(), content: request.body}
+      end
+
+    Repo.insert!(activity)
     :ok
   end
 
