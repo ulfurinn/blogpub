@@ -12,14 +12,14 @@ defmodule Blogpub.APub do
   def actor(feed) do
     %Actor{
       id: actor_url(feed),
-      preferred_username: feed,
+      preferredUsername: feed,
       name: Blogpub.name(feed),
       summary: Blogpub.description(feed),
       url: Blogpub.website(),
       icon: %Image{mediaType: "image/jpeg", url: Blogpub.gravatar_url()},
       inbox: inbox_url(feed),
       outbox: outbox_url(feed),
-      public_key: public_key(feed),
+      publicKey: public_key(feed),
       endpoints: %{
         sharedInbox: shared_inbox_url()
       }
@@ -30,7 +30,7 @@ defmodule Blogpub.APub do
     %PublicKey{
       id: actor_url(feed) <> "#main-key",
       owner: actor_url(feed),
-      public_key_pem: Application.get_env(:blogpub, :feeds)[feed].keys.public
+      publicKeyPem: Application.get_env(:blogpub, :feeds)[feed].keys.public
     }
   end
 
@@ -38,8 +38,8 @@ defmodule Blogpub.APub do
     %Outbox{
       id: outbox_url(feed),
       summary: feed.cname,
-      total_items: length(feed.entries),
-      ordered_items: Enum.map(feed.entries, &entry_to_create_activity(feed, &1))
+      totalItems: length(feed.entries),
+      orderedItems: Enum.map(feed.entries, &entry_to_create_activity(feed, &1))
     }
   end
 
@@ -56,7 +56,7 @@ defmodule Blogpub.APub do
         content: entry.apub_data["content"],
         url: entry.apub_data["url"],
         published: entry.apub_data["published"],
-        attributed_to: actor_url(feed),
+        attributedTo: actor_url(feed),
         to: @public
       }
     }

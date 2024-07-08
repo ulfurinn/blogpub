@@ -6,7 +6,7 @@ defmodule Blogpub.APub.Object do
     :summary,
     :content,
     :url,
-    :attributed_to,
+    :attributedTo,
     :published,
     :to
   ]
@@ -17,10 +17,7 @@ defmodule Blogpub.APub.Object do
     def encode(value, opts) do
       value
       |> Map.from_struct()
-      |> replace(:attributed_to, "attributedTo")
-      |> delete_nil(:summary)
-      |> delete_nil(:content)
-      |> delete_nil(:url)
+      |> compact()
       |> Jason.Encode.map(opts)
     end
   end

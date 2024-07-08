@@ -1,16 +1,8 @@
 defmodule Blogpub.APub.PublicKey do
+  @derive Jason.Encoder
   defstruct [
     :id,
     :owner,
-    :public_key_pem
+    :publicKeyPem
   ]
-
-  defimpl Jason.Encoder do
-    def encode(value, opts) do
-      value
-      |> Map.from_struct()
-      |> Blogpub.MapExt.replace(:public_key_pem, "publicKeyPem")
-      |> Jason.Encode.map(opts)
-    end
-  end
 end

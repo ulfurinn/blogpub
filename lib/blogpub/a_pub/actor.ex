@@ -1,15 +1,16 @@
 defmodule Blogpub.APub.Actor do
   defstruct [
     :id,
-    :preferred_username,
+    :preferredUsername,
     :name,
     :summary,
     :url,
     :inbox,
     :outbox,
-    :public_key,
+    :followers,
+    :publicKey,
     :icon,
-    context: [
+    "@context": [
       "https://www.w3.org/ns/activitystreams",
       "https://w3id.org/security/v1"
     ],
@@ -18,12 +19,12 @@ defmodule Blogpub.APub.Actor do
   ]
 
   defimpl Jason.Encoder do
+    import Blogpub.MapExt
+
     def encode(value, opts) do
       value
       |> Map.from_struct()
-      |> Blogpub.MapExt.replace(:context, "@context")
-      |> Blogpub.MapExt.replace(:preferred_username, "preferredUsername")
-      |> Blogpub.MapExt.replace(:public_key, "publicKey")
+      |> compact()
       |> Jason.Encode.map(opts)
     end
   end
