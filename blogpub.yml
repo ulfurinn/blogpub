@@ -108,7 +108,9 @@ metadata:
   name: blogpub
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-issuer
-    nginx.ingress.kubernetes.io/upstream-vhost: ulfurinn.net
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   more_clear_input_headers "X-Forwarded-Host";
+    #   proxy_set_header X-Forwarded-Host $http_x_forwarded_host;
 spec:
   tls:
     - hosts:
