@@ -85,7 +85,7 @@ defmodule Blogpub.HttpSignature do
   end
 
   defp get_header(conn, "host") do
-    case Plug.Conn.get_req_header(conn, "x-forwarded-host") do
+    case Plug.Conn.get_req_header(conn, "x-blogpub-host") do
       [value] ->
         {:ok, value}
 
@@ -99,11 +99,11 @@ defmodule Blogpub.HttpSignature do
   end
 
   defp get_header(conn, "digest") do
-    with [digest] <- Plug.Conn.get_req_header(conn, "digest"),
-         [algo, digest] <- String.split(digest, "=", parts: 2),
+    with [raw_digest] <- Plug.Conn.get_req_header(conn, "digest"),
+         [algo, digest] <- String.split(raw_digest, "=", parts: 2),
          {:ok, algo} <- hash_algorithm(String.downcase(algo)),
          :ok <- verify_digest(conn, algo, digest) do
-      {:ok, digest}
+      {:ok, raw_digest}
     else
       [] -> {:missing_header, "digest"}
       err -> err
