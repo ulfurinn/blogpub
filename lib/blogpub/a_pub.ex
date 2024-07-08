@@ -46,10 +46,10 @@ defmodule Blogpub.APub do
   def entry_to_create_activity(feed, entry) do
     %Activity{
       type: "Create",
-      id: entry_url(feed, entry) <> "/create",
+      id: entry_id_url(feed, entry) <> "/create",
       actor: actor_url(feed),
       object: %Object{
-        id: entry_url(feed, entry),
+        id: entry.source_url,
         type: entry.apub_data["type"],
         name: entry.apub_data["name"],
         summary: entry.apub_data["summary"],
@@ -84,7 +84,7 @@ defmodule Blogpub.APub do
   def outbox_url(%Feed{cname: cname}), do: outbox_url(cname)
   def outbox_url(feed) when is_binary(feed), do: Blogpub.host() <> "/feed/" <> feed <> "/outbox"
 
-  def entry_url(feed, entry) do
+  def entry_id_url(feed, entry) do
     Blogpub.host() <> "/feed/" <> feed.cname <> "/entry/" <> entry.id
   end
 
