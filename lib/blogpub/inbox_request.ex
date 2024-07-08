@@ -48,12 +48,7 @@ defmodule Blogpub.InboxRequest do
 
       :missing_key ->
         Logger.warning("could not fetch key #{signature.key_id}")
-
-        if can_discard?(request) do
-          :discard
-        else
-          :missing_key
-        end
+        :missing_key
 
       err ->
         err
@@ -98,10 +93,5 @@ defmodule Blogpub.InboxRequest do
       [header] -> {:ok, header}
       _ -> :multiple_signatures
     end
-  end
-
-  defp can_discard?(request) do
-    %InboxRequest{body: body} = request
-    match?(%{"type" => "Delete", "object" => actor, "actor" => actor}, body)
   end
 end
