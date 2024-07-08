@@ -3,5 +3,6 @@ defmodule Blogpub.Collection do
 
   schema "collections" do
     has_many :activities, Blogpub.Activity
+    has_one :feed, Blogpub.Feed, foreign_key: :inbox_id
   end
 end
