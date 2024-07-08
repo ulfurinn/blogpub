@@ -1,4 +1,4 @@
-.PHONY: image build push kube deploy logs sh iex restart
+.PHONY: image build push kube restart deploy logs sh iex psql default
 
 image:
 	docker build -t blogpub .
@@ -25,5 +25,8 @@ sh:
 
 iex:
 	kubectl exec -it deployments/blogpub -- sh -c "/app/bin/blogpub remote"
+
+psql:
+	psql -h sage blogpub
 
 default: build
