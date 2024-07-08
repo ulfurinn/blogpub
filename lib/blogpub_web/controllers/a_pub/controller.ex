@@ -23,35 +23,35 @@ defmodule BlogpubWeb.APub.Controller do
     |> text("")
   end
 
-  def inbox(conn, _params) do
+  def inbox(conn, params) do
     request = Blogpub.InboxRequest.from_plug_conn!(conn)
 
     with :ok <- request |> Blogpub.InboxRequest.verify_signature(),
-         :ok <- request |> Blogpub.InboxRequest.handle() do
+         :ok <- request |> Blogpub.InboxRequest.handle(params["feed"]) do
       conn
       |> put_status(:ok)
       |> put_resp_content_type("text/plain")
       |> text("")
     else
       :missing_signature ->
+        Logger.error("no signature header")
+
         conn
         |> put_status(:bad_request)
         |> put_resp_content_type("text/plain")
         |> text("unsigned request")
 
-      :discard ->
-        conn
-        |> put_status(:ok)
-        |> put_resp_content_type("text/plain")
-        |> text("")
-
       :invalid_signature ->
+        Logger.error("invalid signature")
+
         conn
         |> put_status(:bad_request)
         |> put_resp_content_type("text/plain")
         |> text("invalid signature")
 
       :missing_key ->
+        Logger.error("could not retrieve public key")
+
         conn
         |> put_status(:bad_request)
         |> put_resp_content_type("text/plain")
