@@ -42,10 +42,19 @@ defmodule Blogpub.Seed do
         inbox = Ecto.build_assoc(feed, :inbox, id: Uniq.UUID.uuid7())
 
         case repo.insert(inbox) do
-          {:ok, inbox} -> {:cont, {:ok, [inbox | acc]}}
+          {:ok, inbox} -> {:cont, {:ok, [{feed.id, inbox} | acc]}}
           error -> {:halt, error}
         end
       end)
+    end)
+    |> Ecto.Multi.run(:inbox_assoc, fn repo, %{inboxes: inboxes} ->
+      inboxes
+      |> Enum.each(fn {feed_id, inbox} ->
+        q = from f in Blogpub.Feed, where: f.id == ^feed_id
+        repo.update_all(q, set: [inbox_id: inbox.id])
+      end)
+
+      {:ok, nil}
     end)
   end
 
