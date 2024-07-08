@@ -7,6 +7,7 @@ defmodule Blogpub.Feed do
     has_many :entries, Blogpub.Entry
 
     many_to_many :followers, Blogpub.Actor, join_through: "followers"
+    belongs_to :inbox, Blogpub.Collection
 
     timestamps()
   end
