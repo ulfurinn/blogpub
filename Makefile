@@ -1,7 +1,12 @@
-.PHONY: image build push kube restart deploy logs sh iex psql default
+.PHONY: image-debian image-alpine image build push kube restart deploy logs sh iex psql default
 
-image:
+image-debian:
 	docker build -t blogpub .
+
+image-alpine:
+	docker build -t blogpub -f Dockerfile.alpine .
+
+image: image-alpine
 
 build: image
 
