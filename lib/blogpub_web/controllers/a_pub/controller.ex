@@ -27,7 +27,7 @@ defmodule BlogpubWeb.APub.Controller do
     request = Blogpub.InboxRequest.from_plug_conn!(conn)
 
     with :ok <- request |> Blogpub.InboxRequest.verify_signature(),
-         :ok <- request |> Blogpub.InboxRequest.handle(params["feed"]) do
+         :ok <- request |> Blogpub.handle_request(params["feed"]) do
       conn
       |> put_status(:ok)
       |> put_resp_content_type("text/plain")
