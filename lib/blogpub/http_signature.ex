@@ -9,6 +9,13 @@ defmodule Blogpub.HttpSignature do
     :signature
   ]
 
+  def decode_pem(pem) do
+    case :public_key.pem_decode(pem) do
+      [pem | _] -> :public_key.pem_entry_decode(pem)
+      _ -> nil
+    end
+  end
+
   def from_plug_conn(_conn, nil) do
     {:ok, nil}
   end
@@ -32,6 +39,54 @@ defmodule Blogpub.HttpSignature do
         err
     end
   end
+
+  def signed_request(url, body, key_id, private) do
+    uri = URI.parse(url)
+    body = Jason.encode!(body)
+
+    headers = [
+      {"content-type", "application/activity+json"},
+      {"digest", digest_header(body)},
+      {"date", date_header()},
+      {"host", uri.host}
+    ]
+
+    signature_fields = [
+      {"(request-target)", "post #{uri.path}"}
+      | take_headers(headers, ~w/host date digest/)
+    ]
+
+    signature_string =
+      signature_fields
+      |> Enum.map(fn {k, v} -> k <> ": " <> v end)
+      |> Enum.join("\n")
+
+    signature = :public_key.sign(signature_string, :sha256, private) |> Base.encode64()
+
+    signature_header =
+      [
+        {"keyId", key_id},
+        {"algorithm", "rsa-sha256"},
+        {"headers", Enum.map(signature_fields, &elem(&1, 0)) |> Enum.join(" ")},
+        {"signature", signature}
+      ]
+      |> Enum.map(fn {k, v} -> k <> "=\"" <> v <> "\"" end)
+      |> Enum.join(",")
+
+    %HTTPoison.Request{
+      method: :post,
+      url: url,
+      headers: [{"signature", signature_header} | headers],
+      body: body,
+      options: []
+    }
+  end
+
+  defp take_headers(headers, names) do
+    headers |> Enum.filter(fn {k, _} -> k in names end)
+  end
+
+  defp date_header, do: DateTime.utc_now() |> Calendar.strftime("%a, %-d %b %Y %X GMT")
 
   def verify(signature, key) do
     %HttpSignature{headers: headers, data: data, signature: given_signature} = signature
@@ -104,9 +159,16 @@ defmodule Blogpub.HttpSignature do
     end
   end
 
+  def digest_header(algo \\ :sha256, body) do
+    hash_algorithm_name(algo) <> "=" <> digest(algo, body)
+  end
+
+  defp digest(algo, body) do
+    :crypto.hash(algo, body) |> Base.encode64()
+  end
+
   defp verify_digest(conn, algo, digest) do
-    body = BlogpubWeb.CachingReader.body(conn)
-    calculated = :crypto.hash(algo, body) |> Base.encode64()
+    calculated = digest(algo, BlogpubWeb.CachingReader.body(conn))
 
     if calculated == digest do
       :ok
@@ -124,6 +186,8 @@ defmodule Blogpub.HttpSignature do
 
   defp hash_algorithm("sha-256"), do: {:ok, :sha256}
   defp hash_algorithm(algo), do: {:unsupported_hash_algorithm, algo}
+
+  defp hash_algorithm_name(:sha256), do: "SHA-256"
 
   defp signature_algorithm(%HttpSignature{algorithm: algorithm}),
     do: signature_algorithm(algorithm)
