@@ -1,9 +1,6 @@
 defmodule Blogpub.InboxRequest do
-  import Ecto.Query
   import Plug.Conn, only: [get_req_header: 2]
   alias __MODULE__
-  alias Blogpub.Collection
-  alias Blogpub.Repo
   require Logger
 
   defstruct [
