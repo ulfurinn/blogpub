@@ -15,6 +15,8 @@ defmodule BlogpubWeb.Router do
     get "/feed/:feed", APub.Controller, :actor
     post "/feed/:feed/inbox", APub.Controller, :inbox
     get "/feed/:feed/outbox", APub.Controller, :outbox
+    get "/feed/:feed/following", APub.Controller, :following
+    get "/feed/:feed/followers", APub.Controller, :followers
 
     post "/inbox", APub.Controller, :inbox
   end
