@@ -39,16 +39,13 @@ defmodule Blogpub.InboxRequest do
   def verify_signature(request) do
     %InboxRequest{signature: signature} = request
 
-    case Blogpub.APub.fetch_key(signature.key_id) do
+    case Blogpub.key(signature.key_id) do
       {:ok, key} ->
         Blogpub.HttpSignature.verify(signature, key)
 
-      :missing_key ->
+      nil ->
         Logger.warning("could not fetch key #{signature.key_id}")
         :missing_key
-
-      err ->
-        err
     end
   end
 

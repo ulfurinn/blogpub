@@ -62,19 +62,6 @@ defmodule Blogpub.APub do
     }
   end
 
-  def fetch_key(url) do
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.get(url, accept: "application/activity+json"),
-         {:ok, actor} <- Jason.decode(body),
-         %{"publicKey" => %{"id" => ^url, "publicKeyPem" => pem}} <- actor,
-         [pem] <- :public_key.pem_decode(pem) do
-      {:ok, :public_key.pem_entry_decode(pem)}
-    else
-      {:ok, %HTTPoison.Response{status_code: 410}} -> :missing_key
-      err -> err
-    end
-  end
-
   def actor_url(%Feed{cname: cname}), do: actor_url(cname)
   def actor_url(feed) when is_binary(feed), do: Blogpub.host() <> "/feed/" <> feed
 

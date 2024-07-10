@@ -8,11 +8,15 @@ defmodule Blogpub do
   """
 
   import Ecto.Query
+  alias Blogpub.HttpSignature
+  alias Blogpub.PublicKey
+  alias Blogpub.Activity
   alias Blogpub.Collection
   alias Blogpub.Entry
   alias Blogpub.Feed
   alias Blogpub.InboxRequest
   alias Blogpub.Repo
+  require Logger
 
   def api_key, do: Application.get_env(:blogpub, :api_key)
 
@@ -51,6 +55,42 @@ defmodule Blogpub do
     |> Repo.one()
   end
 
+  def key(url) do
+    key = get_stored_key(url) || fetch_and_store_key(url)
+
+    case key do
+      %PublicKey{pem: pem} ->
+        {:ok, HttpSignature.decode_pem(pem)}
+
+      err ->
+        Logger.error("failed to retrieve public key #{url}: #{inspect(err)}")
+        nil
+    end
+  end
+
+  defp get_stored_key(url) do
+    q =
+      from k in PublicKey,
+        where: k.key_id == ^url
+
+    Repo.one(q)
+  end
+
+  defp fetch_and_store_key(url) do
+    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
+           HTTPoison.get(url, accept: "application/activity+json"),
+         {:ok, object} <- Jason.decode(body) do
+      store_key(object)
+    else
+      err -> err
+    end
+  end
+
+  defp store_key(%{"type" => "Person"} = actor) do
+    actor = actor |> store_actor()
+    actor.public_key
+  end
+
   def actor(url) do
     get_stored_actor(url) || fetch_and_store_actor(url)
   end
@@ -67,8 +107,15 @@ defmodule Blogpub do
   defp fetch_and_store_actor(url) do
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
            HTTPoison.get(url, accept: "application/activity+json"),
-         {:ok, object} <- Jason.decode(body),
-         actor_entity = %Blogpub.Actor{id: Uniq.UUID.uuid7(), url: url, object: object},
+         {:ok, object} <- Jason.decode(body) do
+      store_actor(object)
+    else
+      err -> err
+    end
+  end
+
+  defp store_actor(object) do
+    with actor_entity = %Blogpub.Actor{id: Uniq.UUID.uuid7(), url: object["id"], object: object},
          {:ok, actor} <- Repo.insert(actor_entity),
          %{"publicKey" => %{"id" => id, "publicKeyPem" => pem}} <- object,
          key_entity =
