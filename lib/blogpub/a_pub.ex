@@ -8,28 +8,28 @@ defmodule Blogpub.APub do
 
   @public "https://www.w3.org/ns/activitystreams#Public"
 
-  def actor(feed) do
+  def actor(actor) do
     %Actor{
-      id: actor_url(feed),
-      preferredUsername: feed,
-      name: Blogpub.name(feed),
-      summary: Blogpub.description(feed),
+      id: actor_url(actor),
+      preferredUsername: actor,
+      name: Blogpub.name(actor),
+      summary: Blogpub.description(actor),
       url: Blogpub.website(),
       icon: %Image{mediaType: "image/jpeg", url: Blogpub.gravatar_url()},
-      inbox: inbox_url(feed),
-      outbox: outbox_url(feed),
-      publicKey: public_key(feed),
+      inbox: inbox_url(actor),
+      outbox: outbox_url(actor),
+      publicKey: public_key(actor),
       endpoints: %{
         sharedInbox: shared_inbox_url()
       }
     }
   end
 
-  def public_key(feed) do
+  def public_key(actor) do
     %PublicKey{
-      id: actor_url(feed) <> "#main-key",
-      owner: actor_url(feed),
-      publicKeyPem: Application.get_env(:blogpub, :feeds)[feed].keys.public
+      id: key_url(actor),
+      owner: actor_url(actor),
+      publicKeyPem: Application.get_env(:blogpub, :feeds)[actor].keys.public
     }
   end
 
@@ -63,6 +63,8 @@ defmodule Blogpub.APub do
 
   def actor_url(%Blogpub.Actor{username: username}), do: actor_url(username)
   def actor_url(username) when is_binary(username), do: Blogpub.host() <> "/feed/" <> username
+
+  def key_url(actor), do: actor_url(actor) <> "#main-key"
 
   def inbox_url(%Blogpub.Actor{username: username}), do: inbox_url(username)
 

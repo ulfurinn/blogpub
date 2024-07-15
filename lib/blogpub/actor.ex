@@ -12,11 +12,13 @@ defmodule Blogpub.Actor do
 
     many_to_many :following, Blogpub.Actor,
       join_through: "followers",
-      join_keys: [actor_id: :id, object_id: :id]
+      join_keys: [actor_id: :id, object_id: :id],
+      on_replace: :delete
 
     many_to_many :followers, Blogpub.Actor,
       join_through: "followers",
-      join_keys: [object_id: :id, actor_id: :id]
+      join_keys: [object_id: :id, actor_id: :id],
+      on_replace: :delete
 
     belongs_to :inbox, Blogpub.Collection
     has_many :objects, Blogpub.Object
@@ -35,10 +37,14 @@ defmodule Blogpub.Actor do
   end
 
   def add_follower(actor, follower) do
-    followers = get_assoc(actor, :followers)
-
     actor
     |> change()
-    |> put_assoc(:followers, [follower | followers])
+    |> put_assoc(:followers, [follower | actor.followers])
+  end
+
+  def remove_follower(actor, follower) do
+    actor
+    |> change()
+    |> put_assoc(:followers, Enum.reject(actor.followers, &(&1.url == follower.url)))
   end
 end

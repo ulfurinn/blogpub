@@ -39,7 +39,7 @@ defmodule Blogpub.InboxRequest do
   def verify_signature(request) do
     %InboxRequest{signature: signature} = request
 
-    case Blogpub.key(signature.key_id) do
+    case Blogpub.key(signature.key_id, Blogpub.Repo) do
       {:ok, key} ->
         Blogpub.HttpSignature.verify(signature, key)
 

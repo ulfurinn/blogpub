@@ -8,6 +8,7 @@ defmodule Blogpub.APub.Actor do
     :inbox,
     :outbox,
     :followers,
+    :following,
     :publicKey,
     :icon,
     "@context": [
