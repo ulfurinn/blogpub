@@ -1,5 +1,6 @@
 defmodule Blogpub.Seed do
   import Ecto.Query, only: [from: 2]
+  alias Blogpub.Repo
 
   def child_spec(_arg) do
     %{
@@ -13,44 +14,51 @@ defmodule Blogpub.Seed do
     Blogpub.Release.migrate()
 
     Ecto.Multi.new()
-    |> create_feeds()
+    |> create_local_actors()
     |> create_inbox_collections()
-    |> Blogpub.Repo.transaction()
+    |> Repo.transaction()
     |> ok!()
   end
 
-  defp create_feeds(multi) do
-    existing_feeds = from(f in Blogpub.Feed, select: f.cname) |> Blogpub.Repo.all()
-    feeds_to_create = Blogpub.feed_names() -- existing_feeds
+  defp create_local_actors(multi) do
+    existing_actors = from(a in Blogpub.Actor, where: a.local, select: a.username) |> Repo.all()
+    actors_to_create = Blogpub.feed_names() -- existing_actors
 
-    feeds_to_create
-    |> Enum.reduce(multi, fn feed, multi ->
-      changeset = Blogpub.Feed.new() |> Blogpub.Feed.changeset(%{cname: feed})
+    actors_to_create
+    |> Enum.reduce(multi, fn actor_name, multi ->
+      changeset =
+        Blogpub.Actor.new()
+        |> Blogpub.Actor.changeset(%{
+          local: true,
+          username: actor_name,
+          url: Blogpub.APub.actor_url(actor_name),
+          object: Blogpub.APub.actor(actor_name)
+        })
 
-      Ecto.Multi.insert(multi, feed, changeset)
+      Ecto.Multi.insert(multi, "actor_" <> actor_name, changeset)
     end)
   end
 
   defp create_inbox_collections(multi) do
-    feeds_without_inboxes = from(f in Blogpub.Feed, where: is_nil(f.inbox_id))
+    actors_without_inboxes = from(a in Blogpub.Actor, where: a.local and is_nil(a.inbox_id))
 
     multi
-    |> Ecto.Multi.all(:feeds_without_inboxes, feeds_without_inboxes)
-    |> Ecto.Multi.run(:inboxes, fn repo, %{feeds_without_inboxes: feeds} ->
-      feeds
-      |> Enum.reduce_while({:ok, []}, fn feed, {:ok, acc} ->
-        inbox = Ecto.build_assoc(feed, :inbox, id: Uniq.UUID.uuid7())
+    |> Ecto.Multi.all(:actors_without_inboxes, actors_without_inboxes)
+    |> Ecto.Multi.run(:inboxes, fn repo, %{actors_without_inboxes: actors} ->
+      actors
+      |> Enum.reduce_while({:ok, []}, fn actor, {:ok, acc} ->
+        inbox = Ecto.build_assoc(actor, :inbox, id: Uniq.UUID.uuid7())
 
         case repo.insert(inbox) do
-          {:ok, inbox} -> {:cont, {:ok, [{feed.id, inbox} | acc]}}
+          {:ok, inbox} -> {:cont, {:ok, [{actor.id, inbox} | acc]}}
           error -> {:halt, error}
         end
       end)
     end)
     |> Ecto.Multi.run(:inbox_assoc, fn repo, %{inboxes: inboxes} ->
       inboxes
-      |> Enum.each(fn {feed_id, inbox} ->
-        q = from f in Blogpub.Feed, where: f.id == ^feed_id
+      |> Enum.each(fn {actor_id, inbox} ->
+        q = from a in Blogpub.Actor, where: a.id == ^actor_id
         repo.update_all(q, set: [inbox_id: inbox.id])
       end)
 

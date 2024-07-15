@@ -5,7 +5,6 @@ defmodule Blogpub.APub do
   alias Blogpub.APub.Object
   alias Blogpub.APub.Outbox
   alias Blogpub.APub.PublicKey
-  alias Blogpub.Feed
 
   @public "https://www.w3.org/ns/activitystreams#Public"
 
@@ -34,45 +33,53 @@ defmodule Blogpub.APub do
     }
   end
 
-  def outbox(feed) do
+  def outbox(actor) do
     %Outbox{
-      id: outbox_url(feed),
-      summary: feed.cname,
-      totalItems: length(feed.entries),
-      orderedItems: Enum.map(feed.entries, &entry_to_create_activity(feed, &1))
+      id: outbox_url(actor),
+      summary: actor.username,
+      totalItems: length(actor.objects),
+      orderedItems: Enum.map(actor.objects, &object_to_create_activity(actor, &1))
     }
   end
 
-  def entry_to_create_activity(feed, entry) do
+  def object_to_create_activity(actor, object) do
     %Activity{
       type: "Create",
-      id: entry_id_url(feed, entry) <> "/create",
-      actor: actor_url(feed),
+      id: surrogate_object_url(actor, object, "/create"),
+      actor: actor_url(actor),
       object: %Object{
-        id: entry.source_url,
-        type: entry.apub_data["type"],
-        name: entry.apub_data["name"],
-        summary: entry.apub_data["summary"],
-        content: entry.apub_data["content"],
-        url: entry.apub_data["url"],
-        published: entry.apub_data["published"],
-        attributedTo: actor_url(feed),
+        id: object.object_id,
+        type: object.content["type"],
+        name: object.content["name"],
+        summary: object.content["summary"],
+        content: object.content["content"],
+        url: object.content["url"],
+        published: object.content["published"],
+        attributedTo: actor_url(actor),
         to: @public
       }
     }
   end
 
-  def actor_url(%Feed{cname: cname}), do: actor_url(cname)
-  def actor_url(feed) when is_binary(feed), do: Blogpub.host() <> "/feed/" <> feed
+  def actor_url(%Blogpub.Actor{username: username}), do: actor_url(username)
+  def actor_url(username) when is_binary(username), do: Blogpub.host() <> "/feed/" <> username
 
-  def inbox_url(%Feed{cname: cname}), do: inbox_url(cname)
-  def inbox_url(feed) when is_binary(feed), do: Blogpub.host() <> "/feed/" <> feed <> "/inbox"
+  def inbox_url(%Blogpub.Actor{username: username}), do: inbox_url(username)
 
-  def outbox_url(%Feed{cname: cname}), do: outbox_url(cname)
-  def outbox_url(feed) when is_binary(feed), do: Blogpub.host() <> "/feed/" <> feed <> "/outbox"
+  def inbox_url(username) when is_binary(username),
+    do: Blogpub.host() <> "/feed/" <> username <> "/inbox"
 
-  def entry_id_url(feed, entry) do
-    Blogpub.host() <> "/feed/" <> feed.cname <> "/entry/" <> entry.id
+  def outbox_url(%Blogpub.Actor{username: username}), do: outbox_url(username)
+
+  def outbox_url(username) when is_binary(username),
+    do: Blogpub.host() <> "/feed/" <> username <> "/outbox"
+
+  def surrogate_object_url(actor, object, "") do
+    Blogpub.host() <> "/feed/" <> actor.username <> "/entry/" <> object.id
+  end
+
+  def surrogate_object_url(actor, object, suffix) do
+    Blogpub.host() <> "/feed/" <> actor.username <> "/entry/" <> object.id <> suffix
   end
 
   def shared_inbox_url, do: Blogpub.host() <> "/inbox"

@@ -15,16 +15,16 @@ defmodule Blogpub.Workers.FetchFeed do
   def perform(%Job{args: %{"feed" => feed}}) do
     Logger.info("fetching feed #{feed}")
 
-    feed = from(f in Blogpub.Feed, where: f.cname == ^feed) |> Repo.one!()
-    url = Blogpub.feeds()[feed.cname].atom
+    actor = from(a in Blogpub.Actor, where: a.username == ^feed) |> Repo.one!()
+    url = Blogpub.feeds()[actor.username].atom
 
     case HTTPoison.get(url) do
       {:ok, resp = %HTTPoison.Response{status_code: 200}} ->
         published_urls = published_urls(resp.body)
-        known_urls = known_urls(feed)
+        known_urls = known_urls(actor)
 
         (published_urls -- known_urls)
-        |> Enum.each(&fetch_item(feed, &1))
+        |> Enum.each(&fetch_item(actor, &1))
 
         :ok
 
@@ -40,22 +40,22 @@ defmodule Blogpub.Workers.FetchFeed do
     |> Enum.map(&List.to_string(&1.url))
   end
 
-  defp known_urls(feed) do
-    from(e in Blogpub.Entry,
-      where: e.feed_id == ^feed.id,
-      select: e.source_url
+  defp known_urls(actor) do
+    from(o in Blogpub.Object,
+      where: o.actor_id == ^actor.id,
+      select: o.object_id
     )
     |> Repo.all()
   end
 
-  defp fetch_item(feed, url) do
-    Logger.info("fetching #{url} from feed #{feed.cname}")
+  defp fetch_item(actor, url) do
+    Logger.info("fetching #{url} from actor #{actor.username}")
 
     with {:ok, resp = %HTTPoison.Response{status_code: 200}} <-
            HTTPoison.get(url, %{"accept" => "application/x-blogpub-partial"}),
          {:ok, object} <- Jason.decode(resp.body) do
-      entry = Blogpub.Entry.from_object(feed, url, object)
-      Repo.insert(entry)
+      object = Blogpub.Object.from_partial_object(actor, url, object)
+      Repo.insert(object)
     else
       error ->
         Logger.error("Unexpected: #{inspect(error)}")

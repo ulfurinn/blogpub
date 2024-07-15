@@ -5,7 +5,7 @@ defmodule Blogpub.Schema do
       import Ecto.Changeset
       alias __MODULE__
 
-      @primary_key {:id, Uniq.UUID, version: 7, autogenerate: false}
+      @primary_key {:id, Uniq.UUID, version: 7, type: :uuid, autogenerate: false}
       @foreign_key_type Uniq.UUID
       @timestamps_opts [type: :utc_datetime]
     end
