@@ -64,12 +64,12 @@ spec:
               value: ulfurinn@ulfurinn.net
 
             - name: BLOGPUB_FEEDS
-              value: posts,links,notes
+              value: blog,links,notes
 
-            - name: BLOGPUB_POSTS_FEED_URL
+            - name: BLOGPUB_BLOG_FEED_URL
               value: https://ulfurinn.net/blog/index.xml
 
-            - name: BLOGPUB_POSTS_DESCRIPTION
+            - name: BLOGPUB_BLOG_DESCRIPTION
               value: ActivityPub mirror for the blog feed
 
             - name: BLOGPUB_LINKS_FEED_URL

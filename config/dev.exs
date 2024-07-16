@@ -16,12 +16,12 @@ config :blogpub,
   host: "https://blogpub",
   gravatar_email: "ulfurinn@ulfurinn.net",
   feeds: %{
-    "posts" => %{
+    "blog" => %{
       atom: "https://ulfurinn.net/blog/index.xml",
       description: "ActivityPub mirror for the blog feed",
       keys: %{
-        private: File.read!("posts-private.pem"),
-        public: File.read!("posts-public.pem")
+        private: File.read!("blog-private.pem"),
+        public: File.read!("blog-public.pem")
       }
     },
     "links" => %{
@@ -47,7 +47,7 @@ config :blogpub, Oban,
     {Oban.Plugins.Pruner, max_age: 60 * 60},
     {Oban.Plugins.Cron,
      crontab:
-       ~w/posts links notes/
+       ~w/blog links notes/
        |> Enum.map(&{"*/10 * * * *", Blogpub.Workers.FetchFeed, args: %{feed: &1}})}
   ]
 

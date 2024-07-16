@@ -62,26 +62,26 @@ defmodule Blogpub.APub do
   end
 
   def actor_url(%Blogpub.Actor{username: username}), do: actor_url(username)
-  def actor_url(username) when is_binary(username), do: Blogpub.host() <> "/feed/" <> username
+  def actor_url(username) when is_binary(username), do: Blogpub.host() <> "/" <> username
 
   def key_url(actor), do: actor_url(actor) <> "#main-key"
 
   def inbox_url(%Blogpub.Actor{username: username}), do: inbox_url(username)
 
   def inbox_url(username) when is_binary(username),
-    do: Blogpub.host() <> "/feed/" <> username <> "/inbox"
+    do: Blogpub.host() <> "/" <> username <> "/inbox"
 
   def outbox_url(%Blogpub.Actor{username: username}), do: outbox_url(username)
 
   def outbox_url(username) when is_binary(username),
-    do: Blogpub.host() <> "/feed/" <> username <> "/outbox"
+    do: Blogpub.host() <> "/" <> username <> "/outbox"
 
   def surrogate_object_url(actor, object, "") do
-    Blogpub.host() <> "/feed/" <> actor.username <> "/entry/" <> object.id
+    Blogpub.host() <> "/" <> actor.username <> "/entry/" <> object.id
   end
 
   def surrogate_object_url(actor, object, suffix) do
-    Blogpub.host() <> "/feed/" <> actor.username <> "/entry/" <> object.id <> suffix
+    Blogpub.host() <> "/" <> actor.username <> "/entry/" <> object.id <> suffix
   end
 
   def shared_inbox_url, do: Blogpub.host() <> "/inbox"

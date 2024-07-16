@@ -11,14 +11,13 @@ defmodule BlogpubWeb.Router do
     get "/", Home.Controller, :index
 
     get "/.well-known/webfinger", Webfinger.Controller, :resource
-
-    get "/feed/:feed", APub.Controller, :actor
-    post "/feed/:feed/inbox", APub.Controller, :inbox
-    get "/feed/:feed/outbox", APub.Controller, :outbox
-    get "/feed/:feed/following", APub.Controller, :following
-    get "/feed/:feed/followers", APub.Controller, :followers
-
     post "/inbox", APub.Controller, :inbox
+
+    get "/:feed", APub.Controller, :actor
+    post "/:feed/inbox", APub.Controller, :inbox
+    get "/:feed/outbox", APub.Controller, :outbox
+    get "/:feed/following", APub.Controller, :following
+    get "/:feed/followers", APub.Controller, :followers
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
