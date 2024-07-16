@@ -10,10 +10,10 @@ config :blogpub, Blogpub.Repo,
   pool_size: 10
 
 config :blogpub,
-  domain: "ulfurinn.net",
+  domain: "blogpub",
   website: "https://ulfurinn.net",
   name: "Valeri Sokolov",
-  host: "http://localhost:4511",
+  host: "https://blogpub",
   gravatar_email: "ulfurinn@ulfurinn.net",
   feeds: %{
     "posts" => %{
