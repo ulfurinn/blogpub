@@ -48,7 +48,7 @@ defmodule Blogpub.MixProject do
       {:swoosh, "~> 1.5"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:uniq, "~> 0.1"}
+      {:uniq, "~> 0.6"}
     ]
   end
 
