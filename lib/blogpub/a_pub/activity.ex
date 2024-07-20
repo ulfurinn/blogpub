@@ -1,11 +1,10 @@
 defmodule Blogpub.APub.Activity do
-  alias __MODULE__
-
   defstruct [
     :id,
     :type,
     :actor,
     :object,
+    :to,
     "@context": "https://www.w3.org/ns/activitystreams"
   ]
 

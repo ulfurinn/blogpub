@@ -52,6 +52,7 @@ defmodule Blogpub.APub do
       type: "Create",
       id: surrogate_object_url(actor, object, "create"),
       actor: actor_url(actor),
+      to: [@public],
       object: %Object{
         id: object.content["id"],
         type: object.content["type"],
