@@ -35,7 +35,7 @@ defmodule Blogpub.MixProject do
       {:bandit, "~> 1.5"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
-      {:finch, "~> 0.13"},
+      {:finch, "~> 0.18"},
       {:gettext, "~> 0.24"},
       {:httpoison, "~> 2.0"},
       {:jason, "~> 1.2"},
