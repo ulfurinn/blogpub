@@ -43,7 +43,7 @@ defmodule Blogpub.Workers.FetchFeed do
   defp known_urls(actor) do
     from(o in Blogpub.Object,
       where: o.actor_id == ^actor.id,
-      select: o.object_id
+      select: o.content["id"]
     )
     |> Repo.all()
   end
@@ -54,7 +54,7 @@ defmodule Blogpub.Workers.FetchFeed do
     with {:ok, resp = %HTTPoison.Response{status_code: 200}} <-
            HTTPoison.get(url, %{"accept" => "application/x-blogpub-partial"}),
          {:ok, object} <- Jason.decode(resp.body) do
-      object = Blogpub.Object.from_partial_object(actor, url, object)
+      object = Blogpub.Object.from_partial_object(actor, object)
       Repo.insert(object)
     else
       error ->

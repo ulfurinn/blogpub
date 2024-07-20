@@ -50,7 +50,7 @@ defmodule Blogpub.APub do
       id: surrogate_object_url(actor, object, "create"),
       actor: actor_url(actor),
       object: %Object{
-        id: object.object_id,
+        id: object.content["id"],
         type: object.content["type"],
         name: object.content["name"],
         summary: object.content["summary"],

@@ -2,7 +2,6 @@ defmodule Blogpub.Object do
   use Blogpub.Schema
 
   schema "objects" do
-    field :object_id, :string
     field :content, :map
 
     belongs_to :actor, Blogpub.Actor
@@ -10,14 +9,13 @@ defmodule Blogpub.Object do
     timestamps()
   end
 
-  def from_partial_object(actor, url, object) do
+  def from_partial_object(actor, object) do
     attrs = %{
-      object_id: url,
       content: object,
       actor_id: actor.id
     }
 
     %Object{id: Uniq.UUID.uuid7()}
-    |> cast(attrs, [:actor_id, :object_id, :content])
+    |> cast(attrs, [:actor_id, :content])
   end
 end
