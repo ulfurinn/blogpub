@@ -9,6 +9,13 @@ config :blogpub, Blogpub.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+file_read_silent = fn path ->
+  case File.read(path) do
+    {:ok, data} -> data
+    {:error, _error} -> nil
+  end
+end
+
 config :blogpub,
   domain: "blogpub",
   website: "https://ulfurinn.net",
@@ -20,24 +27,24 @@ config :blogpub,
       atom: "https://ulfurinn.net/blog/index.xml",
       description: "ActivityPub mirror for the blog feed",
       keys: %{
-        private: File.read!("blog-private.pem"),
-        public: File.read!("blog-public.pem")
+        private: file_read_silent.("blog-private.pem"),
+        public: file_read_silent.("blog-public.pem")
       }
     },
     "links" => %{
       atom: "https://ulfurinn.net/links/index.xml",
       description: "ActivityPub mirror for the link feed",
       keys: %{
-        private: File.read!("links-private.pem"),
-        public: File.read!("links-public.pem")
+        private: file_read_silent.("links-private.pem"),
+        public: file_read_silent.("links-public.pem")
       }
     },
     "notes" => %{
       atom: "https://ulfurinn.net/notes/index.xml",
       description: "ActivityPub mirror for the note feed",
       keys: %{
-        private: File.read!("notes-private.pem"),
-        public: File.read!("notes-public.pem")
+        private: file_read_silent.("notes-private.pem"),
+        public: file_read_silent.("notes-public.pem")
       }
     }
   }
