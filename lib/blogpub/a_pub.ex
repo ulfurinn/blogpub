@@ -1,4 +1,6 @@
 defmodule Blogpub.APub do
+  use BlogpubWeb, :verified_routes
+
   alias Blogpub.APub.Activity
   alias Blogpub.APub.Actor
   alias Blogpub.APub.Image
@@ -45,7 +47,7 @@ defmodule Blogpub.APub do
   def object_to_create_activity(actor, object) do
     %Activity{
       type: "Create",
-      id: surrogate_object_url(actor, object, "/create"),
+      id: surrogate_object_url(actor, object, "create"),
       actor: actor_url(actor),
       object: %Object{
         id: object.object_id,
@@ -61,28 +63,24 @@ defmodule Blogpub.APub do
     }
   end
 
+  def apub_url(path), do: Blogpub.host() <> path
+
   def actor_url(%Blogpub.Actor{username: username}), do: actor_url(username)
-  def actor_url(username) when is_binary(username), do: Blogpub.host() <> "/" <> username
+  def actor_url(username) when is_binary(username), do: apub_url(~p"/#{username}")
 
   def key_url(actor), do: actor_url(actor) <> "#main-key"
 
   def inbox_url(%Blogpub.Actor{username: username}), do: inbox_url(username)
-
-  def inbox_url(username) when is_binary(username),
-    do: Blogpub.host() <> "/" <> username <> "/inbox"
+  def inbox_url(username) when is_binary(username), do: apub_url(~p"/#{username}/inbox")
 
   def outbox_url(%Blogpub.Actor{username: username}), do: outbox_url(username)
+  def outbox_url(username) when is_binary(username), do: apub_url(~p"/#{username}/outbox")
 
-  def outbox_url(username) when is_binary(username),
-    do: Blogpub.host() <> "/" <> username <> "/outbox"
+  def surrogate_object_url(actor, object, ""),
+    do: apub_url(~p"/#{actor.username}/entry/#{object.id}")
 
-  def surrogate_object_url(actor, object, "") do
-    Blogpub.host() <> "/" <> actor.username <> "/entry/" <> object.id
-  end
+  def surrogate_object_url(actor, object, suffix),
+    do: apub_url(~p"/#{actor.username}/entry/#{object.id}/#{suffix}")
 
-  def surrogate_object_url(actor, object, suffix) do
-    Blogpub.host() <> "/" <> actor.username <> "/entry/" <> object.id <> suffix
-  end
-
-  def shared_inbox_url, do: Blogpub.host() <> "/inbox"
+  def shared_inbox_url, do: apub_url(~p"/inbox")
 end
