@@ -61,7 +61,7 @@ defmodule Blogpub.APub do
         url: object.content["url"],
         published: object.content["published"],
         attributedTo: actor_url(actor),
-        to: @public
+        to: [@public]
       }
     }
   end
