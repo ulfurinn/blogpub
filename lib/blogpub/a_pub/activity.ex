@@ -9,9 +9,6 @@ defmodule Blogpub.APub.Activity do
     "@context": "https://www.w3.org/ns/activitystreams"
   ]
 
-  def embedded(activity = %{"@context" => _}), do: Map.delete(activity, "@context")
-  def embedded(activity = %Activity{}), do: %Activity{activity | "@context": nil}
-
   defimpl Jason.Encoder do
     import Blogpub.MapExt
 

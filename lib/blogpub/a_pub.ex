@@ -10,6 +10,9 @@ defmodule Blogpub.APub do
 
   @public "https://www.w3.org/ns/activitystreams#Public"
 
+  def embedded(activity = %{"@context" => _}), do: Map.delete(activity, "@context")
+  def embedded(activity = %_struct{"@context": _}), do: %{activity | "@context": nil}
+
   def actor(actor) do
     %Actor{
       id: actor_url(actor),
@@ -40,7 +43,7 @@ defmodule Blogpub.APub do
       id: outbox_url(actor),
       summary: actor.username,
       totalItems: length(actor.objects),
-      orderedItems: Enum.map(actor.objects, &object_to_create_activity(actor, &1))
+      orderedItems: Enum.map(actor.objects, &embedded(object_to_create_activity(actor, &1)))
     }
   end
 
