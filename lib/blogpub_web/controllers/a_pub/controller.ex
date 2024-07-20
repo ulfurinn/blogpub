@@ -28,15 +28,25 @@ defmodule BlogpubWeb.APub.Controller do
 
   def inbox(conn, params) do
     request = Blogpub.InboxRequest.from_plug_conn!(conn)
+    Logger.info(conn.host)
     Logger.info(request.raw_body)
 
-    with :ok <- request |> Blogpub.InboxRequest.verify_signature(),
+    with :ok <- check_processing(request),
+         :ok <- request |> Blogpub.InboxRequest.verify_signature(),
          :ok <- request |> Blogpub.handle_request(params["feed"]) do
       conn
       |> put_status(:ok)
       |> put_resp_content_type("text/plain")
       |> text("")
     else
+      :ignore ->
+        Logger.error("ignoring request")
+
+        conn
+        |> put_status(:ok)
+        |> put_resp_content_type("text/plain")
+        |> text("")
+
       :missing_signature ->
         Logger.error("no signature header")
 
@@ -57,9 +67,9 @@ defmodule BlogpubWeb.APub.Controller do
         Logger.error("could not retrieve public key")
 
         conn
-        |> put_status(:bad_request)
+        |> put_status(:ok)
         |> put_resp_content_type("text/plain")
-        |> text("public key not available")
+        |> text("")
     end
   end
 
@@ -72,4 +82,11 @@ defmodule BlogpubWeb.APub.Controller do
     |> put_resp_content_type("application/activity+json")
     |> render(:outbox, outbox: APub.outbox(outbox))
   end
+
+  defp check_processing(%Blogpub.InboxRequest{
+         body: %{"type" => "Delete", "actor" => actor, "object" => actor}
+       }),
+       do: :ignore
+
+  defp check_processing(_), do: :ok
 end
