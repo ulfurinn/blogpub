@@ -184,20 +184,21 @@ defmodule Blogpub do
 
   defp execute_activity(activity = %{"type" => "Follow"}, repo) do
     %{"actor" => actor, "object" => object} = activity
-    actor = actor(actor, repo)
-    object = local_actor_by_url(object, Blogpub.Repo) |> repo.preload([:public_key, :followers])
+    remote_actor = actor(actor, repo)
 
-    :ok = add_follower(object, actor, repo)
+    local_actor =
+      local_actor_by_url(object, Blogpub.Repo) |> repo.preload([:public_key, :followers])
+
+    :ok = add_follower(local_actor, remote_actor, repo)
 
     accept = %APub.Activity{
-      id: object.url <> "#accepts/follows/" <> Uniq.UUID.uuid7(),
+      id: local_actor.url <> "#accepts/follows/" <> Uniq.UUID.uuid7(),
       type: "Accept",
-      actor: object.url,
-      object: activity |> APub.Activity.embedded()
+      actor: local_actor.url,
+      object: activity |> APub.embedded()
     }
 
-    request = signed_request(object, actor, accept)
-    {:ok, _} = request |> HTTPoison.request()
+    {:ok, _} = make_request(local_actor, remote_actor, accept)
 
     {:ok, nil}
   end
@@ -238,6 +239,12 @@ defmodule Blogpub do
       Logger.warning("undoing a follow from #{actor.url} to #{object.url} that is not there")
       :ok
     end
+  end
+
+  defp make_request(from_actor, to_actor, activity) do
+    request = signed_request(from_actor, to_actor, activity)
+    Logger.info("posting: " <> request.body)
+    request |> HTTPoison.request()
   end
 
   defp signed_request(from_actor, to_actor, body) do
