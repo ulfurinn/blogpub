@@ -68,6 +68,37 @@ defmodule Blogpub.APub do
     }
   end
 
+  def followers(actor, nil) do
+    count = Blogpub.followers_count(actor)
+
+    %OrderedCollection{
+      id: followers_url(actor),
+      totalItems: count,
+      first: if(count > 0, do: followers_url(actor, 1), else: nil)
+    }
+  end
+
+  @followers_page_size 10
+
+  def followers(actor, page) do
+    count = Blogpub.followers_count(actor)
+
+    items =
+      Blogpub.followers(actor, @followers_page_size, (page - 1) * @followers_page_size)
+      |> Enum.map(& &1.url)
+
+    last_item_number = (page - 1) * @followers_page_size + length(items)
+
+    %OrderedCollectionPage{
+      id: followers_url(actor, page),
+      totalItems: count,
+      partOf: followers_url(actor),
+      prev: if(page > 1, do: followers_url(actor, page - 1), else: nil),
+      next: if(count > last_item_number, do: followers_url(actor, page + 1), else: nil),
+      orderedItems: items
+    }
+  end
+
   def object_to_create_activity(actor, object) do
     %Activity{
       type: "Create",

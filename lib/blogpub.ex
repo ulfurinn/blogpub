@@ -16,6 +16,7 @@ defmodule Blogpub do
   alias Blogpub.InboxRequest
   alias Blogpub.Object
   alias Blogpub.PublicKey
+  alias Blogpub.Repo
   require Logger
 
   def api_key, do: Application.get_env(:blogpub, :api_key)
@@ -142,6 +143,17 @@ defmodule Blogpub do
       err -> err
     end
   end
+
+  def followers_count(actor) do
+    Repo.aggregate(followers_base(actor), :count)
+  end
+
+  def followers(actor, limit, offset) do
+    from(followers_base(actor), order_by: [asc: :id], limit: ^limit, offset: ^offset)
+    |> Repo.all()
+  end
+
+  defp followers_base(actor), do: Ecto.assoc(actor, :followers)
 
   def handle_request(request = %InboxRequest{}, feed) do
     Ecto.Multi.new()

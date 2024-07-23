@@ -90,6 +90,18 @@ defmodule BlogpubWeb.APub.Controller do
     end
   end
 
+  def followers(conn, params = %{"feed" => feed}) do
+    case Blogpub.local_actor_by_username(feed, Blogpub.Repo) do
+      actor = %Actor{} ->
+        conn
+        |> put_resp_content_type("application/activity+json")
+        |> render(:collection, collection: APub.followers(actor, page(params)))
+
+      nil ->
+        not_found(conn)
+    end
+  end
+
   defp check_processing(%Blogpub.InboxRequest{
          body: %{"type" => "Delete", "actor" => actor, "object" => actor}
        }),
