@@ -12,10 +12,7 @@ defmodule BlogpubWeb.APub.Controller do
         |> render(:actor, actor: object)
 
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> put_resp_content_type("text/plain")
-        |> text("")
+        not_found(conn)
     end
   end
 
@@ -74,13 +71,23 @@ defmodule BlogpubWeb.APub.Controller do
   end
 
   def outbox(conn, %{"feed" => feed}) do
-    outbox =
-      feed
-      |> Blogpub.feed_with_entries(Blogpub.Repo)
+    outbox = feed |> Blogpub.feed_with_entries(Blogpub.Repo)
 
     conn
     |> put_resp_content_type("application/activity+json")
     |> render(:outbox, outbox: APub.outbox(outbox))
+  end
+
+  def following(conn, params = %{"feed" => feed}) do
+    case Blogpub.local_actor_by_username(feed, Blogpub.Repo) do
+      actor = %Actor{} ->
+        conn
+        |> put_resp_content_type("application/activity+json")
+        |> render(:collection, collection: APub.following(actor, page(params)))
+
+      nil ->
+        not_found(conn)
+    end
   end
 
   defp check_processing(%Blogpub.InboxRequest{
@@ -89,4 +96,20 @@ defmodule BlogpubWeb.APub.Controller do
        do: :ignore
 
   defp check_processing(_), do: :ok
+
+  defp page(%{"page" => page}) do
+    case Integer.parse(page) do
+      {page, ""} -> page
+      _ -> nil
+    end
+  end
+
+  defp page(_), do: nil
+
+  defp not_found(conn) do
+    conn
+    |> put_status(:not_found)
+    |> put_resp_content_type("text/plain")
+    |> text("")
+  end
 end

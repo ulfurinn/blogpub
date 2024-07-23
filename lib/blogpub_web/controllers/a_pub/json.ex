@@ -8,4 +8,8 @@ defmodule BlogpubWeb.APub.JSON do
   def outbox(%{outbox: outbox}) do
     outbox
   end
+
+  def collection(%{collection: collection}) do
+    collection
+  end
 end

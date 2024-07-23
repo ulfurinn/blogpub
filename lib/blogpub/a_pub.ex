@@ -3,6 +3,8 @@ defmodule Blogpub.APub do
 
   alias Blogpub.APub.Activity
   alias Blogpub.APub.Actor
+  alias Blogpub.APub.OrderedCollection
+  alias Blogpub.APub.OrderedCollectionPage
   alias Blogpub.APub.Image
   alias Blogpub.APub.Object
   alias Blogpub.APub.Outbox
@@ -23,11 +25,14 @@ defmodule Blogpub.APub do
       icon: %Image{mediaType: "image/jpeg", url: Blogpub.gravatar_url()},
       inbox: inbox_url(actor),
       outbox: outbox_url(actor),
+      following: following_url(actor),
+      followers: followers_url(actor),
       publicKey: public_key(actor),
       endpoints: %{
         sharedInbox: shared_inbox_url()
       }
     }
+    |> dbg
   end
 
   def public_key(actor) do
@@ -44,6 +49,22 @@ defmodule Blogpub.APub do
       summary: actor.username,
       totalItems: length(actor.objects),
       orderedItems: Enum.map(actor.objects, &embedded(object_to_create_activity(actor, &1)))
+    }
+  end
+
+  def following(actor, nil) do
+    %OrderedCollection{
+      id: following_url(actor),
+      totalItems: 0
+    }
+  end
+
+  def following(actor, page) do
+    %OrderedCollectionPage{
+      id: following_url(actor, page),
+      totalItems: 0,
+      partOf: following_url(actor),
+      orderedItems: []
     }
   end
 
@@ -79,6 +100,24 @@ defmodule Blogpub.APub do
 
   def outbox_url(%Blogpub.Actor{username: username}), do: outbox_url(username)
   def outbox_url(username) when is_binary(username), do: apub_url(~p"/#{username}/outbox")
+
+  def following_url(actor, page \\ nil)
+  def following_url(%Blogpub.Actor{username: username}, page), do: following_url(username, page)
+
+  def following_url(username, nil) when is_binary(username),
+    do: apub_url(~p"/#{username}/following")
+
+  def following_url(username, page) when is_binary(username),
+    do: apub_url(~p"/#{username}/following?page=#{page}")
+
+  def followers_url(actor, page \\ nil)
+  def followers_url(%Blogpub.Actor{username: username}, page), do: followers_url(username, page)
+
+  def followers_url(username, nil) when is_binary(username),
+    do: apub_url(~p"/#{username}/followers")
+
+  def followers_url(username, page) when is_binary(username),
+    do: apub_url(~p"/#{username}/followers?page=#{page}")
 
   def surrogate_object_url(actor, object, ""),
     do: apub_url(~p"/#{actor.username}/entry/#{object.id}")
