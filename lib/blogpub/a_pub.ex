@@ -32,7 +32,6 @@ defmodule Blogpub.APub do
         sharedInbox: shared_inbox_url()
       }
     }
-    |> dbg
   end
 
   def public_key(actor) do

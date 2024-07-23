@@ -10,7 +10,7 @@ defmodule Blogpub.Application do
     children = [
       BlogpubWeb.Telemetry,
       Blogpub.Repo,
-      Blogpub.Seed,
+      Blogpub.Migrate,
       {Oban, Application.fetch_env!(:blogpub, Oban)},
       {Phoenix.PubSub, name: Blogpub.PubSub},
       # Start the Finch HTTP client for sending emails
@@ -18,7 +18,8 @@ defmodule Blogpub.Application do
       # Start a worker by calling: Blogpub.Worker.start_link(arg)
       # {Blogpub.Worker, arg},
       # Start to serve requests, typically the last entry
-      BlogpubWeb.Endpoint
+      BlogpubWeb.Endpoint,
+      Blogpub.Seed
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

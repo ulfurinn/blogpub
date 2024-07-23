@@ -11,8 +11,6 @@ defmodule Blogpub.Seed do
   end
 
   def run do
-    Blogpub.Release.migrate()
-
     Ecto.Multi.new()
     |> create_local_actors()
     |> create_inbox_collections()
