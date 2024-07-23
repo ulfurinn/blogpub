@@ -21,13 +21,23 @@ defmodule Blogpub.Seed do
   end
 
   defp create_local_actors(multi) do
-    existing_actors = from(a in Blogpub.Actor, where: a.local, select: a.username) |> Repo.all()
-    actors_to_create = Blogpub.feed_names() -- existing_actors
+    existing_actors =
+      from(a in Blogpub.Actor, where: a.local, select: {a.username, a})
+      |> Repo.all()
+      |> Enum.into(%{})
 
-    actors_to_create
+    defined_actors = Blogpub.feed_names()
+
+    defined_actors
     |> Enum.reduce(multi, fn actor_name, multi ->
+      base =
+        case existing_actors do
+          %{^actor_name => actor} -> actor
+          _ -> Blogpub.Actor.new()
+        end
+
       changeset =
-        Blogpub.Actor.new()
+        base
         |> Blogpub.Actor.changeset(%{
           local: true,
           username: actor_name,
@@ -35,7 +45,7 @@ defmodule Blogpub.Seed do
           object: Blogpub.APub.actor(actor_name)
         })
 
-      Ecto.Multi.insert(multi, "actor_" <> actor_name, changeset)
+      Ecto.Multi.insert_or_update(multi, "actor_" <> actor_name, changeset)
     end)
   end
 
