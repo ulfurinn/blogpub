@@ -18,6 +18,8 @@ defmodule BlogpubWeb.Router do
     get "/:feed/outbox", APub.Controller, :outbox
     get "/:feed/following", APub.Controller, :following
     get "/:feed/followers", APub.Controller, :followers
+
+    get "/*path", APub.Controller, :object
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

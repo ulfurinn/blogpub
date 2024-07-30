@@ -106,6 +106,23 @@ defmodule Blogpub.APub do
     }
   end
 
+  def object(object, opts) do
+    addressing = Keyword.fetch!(opts, :addressing)
+
+    %Object{
+      id: object.content["id"],
+      type: object.content["type"],
+      name: object.content["name"],
+      summary: object.content["summary"],
+      content: object.content["content"],
+      url: object.content["url"],
+      published: object.content["published"],
+      attributedTo: object.content["attributedTo"],
+      to: Keyword.fetch!(addressing, :to),
+      cc: Keyword.fetch!(addressing, :cc)
+    }
+  end
+
   def object_to_create_activity(object, opts) do
     addressing = Keyword.fetch!(opts, :addressing)
 
@@ -115,18 +132,7 @@ defmodule Blogpub.APub do
       actor: object.content["attributedTo"],
       to: Keyword.fetch!(addressing, :to),
       cc: Keyword.fetch!(addressing, :cc),
-      object: %Object{
-        id: object.content["id"],
-        type: object.content["type"],
-        name: object.content["name"],
-        summary: object.content["summary"],
-        content: object.content["content"],
-        url: object.content["url"],
-        published: object.content["published"],
-        attributedTo: object.content["attributedTo"],
-        to: Keyword.fetch!(addressing, :to),
-        cc: Keyword.fetch!(addressing, :cc)
-      }
+      object: embedded(object(object, opts))
     }
   end
 

@@ -1,7 +1,9 @@
 defmodule BlogpubWeb.APub.Controller do
+  use BlogpubWeb, :controller
+  import Ecto.Query, only: [from: 2]
+  alias Blogpub.Object
   alias Blogpub.APub
   alias Blogpub.Actor
-  use BlogpubWeb, :controller
   require Logger
 
   def actor(conn, %{"feed" => feed}) do
@@ -99,6 +101,30 @@ defmodule BlogpubWeb.APub.Controller do
 
       nil ->
         not_found(conn)
+    end
+  end
+
+  def object(conn, _params) do
+    uri = %URI{scheme: "https", host: Blogpub.domain(), path: conn.request_path}
+
+    object =
+      from(o in Blogpub.Object, where: o.content["id"] == ^URI.to_string(uri), preload: :actor)
+      |> Blogpub.Repo.one()
+
+    case object do
+      %Object{} ->
+        addressing = [
+          to: [APub.followers_url(object.actor)],
+          cc: [APub.public()]
+        ]
+
+        conn
+        |> put_resp_content_type("application/activity+json")
+        |> render(:object, object: APub.object(object, addressing: addressing))
+
+      nil ->
+        conn
+        |> not_found()
     end
   end
 

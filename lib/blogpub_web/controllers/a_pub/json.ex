@@ -12,4 +12,8 @@ defmodule BlogpubWeb.APub.JSON do
   def collection(%{collection: collection}) do
     collection
   end
+
+  def object(%{object: object}) do
+    object
+  end
 end

@@ -9,7 +9,8 @@ defmodule Blogpub.APub.Object do
     :attributedTo,
     :published,
     :to,
-    :cc
+    :cc,
+    "@context": "https://www.w3.org/ns/activitystreams"
   ]
 
   defimpl Jason.Encoder do
