@@ -8,7 +8,8 @@ defmodule Blogpub.APub.Object do
     :url,
     :attributedTo,
     :published,
-    :to
+    :to,
+    :cc
   ]
 
   defimpl Jason.Encoder do

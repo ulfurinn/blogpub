@@ -12,6 +12,8 @@ defmodule Blogpub.APub do
 
   @public "https://www.w3.org/ns/activitystreams#Public"
 
+  def public, do: @public
+
   def embedded(activity = %{"@context" => _}), do: Map.delete(activity, "@context")
   def embedded(activity = %_struct{"@context": _}), do: %{activity | "@context": nil}
 
@@ -43,11 +45,17 @@ defmodule Blogpub.APub do
   end
 
   def outbox(actor) do
+    addressing = [
+      to: [followers_url(actor)],
+      cc: [@public]
+    ]
+
     %Outbox{
       id: outbox_url(actor),
       summary: actor.username,
       totalItems: length(actor.objects),
-      orderedItems: Enum.map(actor.objects, &embedded(object_to_create_activity(actor, &1)))
+      orderedItems:
+        Enum.map(actor.objects, &embedded(object_to_create_activity(&1, addressing: addressing)))
     }
   end
 
@@ -98,12 +106,15 @@ defmodule Blogpub.APub do
     }
   end
 
-  def object_to_create_activity(actor, object) do
+  def object_to_create_activity(object, opts) do
+    addressing = Keyword.fetch!(opts, :addressing)
+
     %Activity{
       type: "Create",
-      id: surrogate_object_url(actor, object, "create"),
-      actor: actor_url(actor),
-      to: [@public],
+      id: object.content["id"] <> "#create",
+      actor: object.content["attributedTo"],
+      to: Keyword.fetch!(addressing, :to),
+      cc: Keyword.fetch!(addressing, :cc),
       object: %Object{
         id: object.content["id"],
         type: object.content["type"],
@@ -112,8 +123,9 @@ defmodule Blogpub.APub do
         content: object.content["content"],
         url: object.content["url"],
         published: object.content["published"],
-        attributedTo: actor_url(actor),
-        to: [@public]
+        attributedTo: object.content["attributedTo"],
+        to: Keyword.fetch!(addressing, :to),
+        cc: Keyword.fetch!(addressing, :cc)
       }
     }
   end
@@ -148,12 +160,6 @@ defmodule Blogpub.APub do
 
   def followers_url(username, page) when is_binary(username),
     do: apub_url(~p"/#{username}/followers?page=#{page}")
-
-  def surrogate_object_url(actor, object, ""),
-    do: apub_url(~p"/#{actor.username}/entry/#{object.id}")
-
-  def surrogate_object_url(actor, object, suffix),
-    do: apub_url(~p"/#{actor.username}/entry/#{object.id}/#{suffix}")
 
   def shared_inbox_url, do: apub_url(~p"/inbox")
 end

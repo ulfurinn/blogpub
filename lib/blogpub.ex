@@ -29,6 +29,10 @@ defmodule Blogpub do
   def feeds, do: Application.get_env(:blogpub, :feeds)
   def feed_names, do: feeds() |> Map.keys()
 
+  def rewrite_host(url) do
+    %URI{URI.parse(url) | host: domain()} |> URI.to_string()
+  end
+
   def gravatar_url do
     email = Application.get_env(:blogpub, :gravatar_email)
 
@@ -253,7 +257,29 @@ defmodule Blogpub do
     end
   end
 
-  defp make_request(from_actor, to_actor, activity) do
+  def schedule_broadcast(object) do
+    actor = object.actor |> Repo.preload(:followers)
+
+    actor.followers
+    |> Enum.map(&publishing_endpoint/1)
+    |> Enum.uniq()
+    |> Enum.each(&schedule_broadcast(object, &1))
+  end
+
+  defp schedule_broadcast(object, url) do
+    addressing = [
+      to: [APub.followers_url(object.actor)],
+      cc: [APub.public()]
+    ]
+
+    activity = APub.object_to_create_activity(object, addressing: addressing)
+    Blogpub.Workers.PublishActivity.schedule(object.actor, activity, url)
+  end
+
+  defp publishing_endpoint(%Actor{object: %{"endpoints" => %{"sharedInbox" => inbox}}}), do: inbox
+  defp publishing_endpoint(%Actor{object: %{"inbox" => inbox}}), do: inbox
+
+  def make_request(from_actor, to_actor, activity) do
     request = signed_request(from_actor, to_actor, activity)
     Logger.info("posting: " <> request.body)
     request |> HTTPoison.request()
@@ -261,12 +287,15 @@ defmodule Blogpub do
 
   defp signed_request(from_actor, to_actor, body) do
     HttpSignature.signed_request(
-      to_actor.object["inbox"],
+      inbox_url(to_actor),
       body,
       APub.key_url(from_actor),
       private_key(from_actor)
     )
   end
+
+  defp inbox_url(url) when is_binary(url), do: url
+  defp inbox_url(%Actor{object: %{"inbox" => url}}), do: url
 
   defp private_key(actor),
     do:

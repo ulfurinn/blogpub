@@ -5,6 +5,7 @@ defmodule Blogpub.APub.Activity do
     :actor,
     :object,
     :to,
+    :cc,
     "@context": "https://www.w3.org/ns/activitystreams"
   ]
 

@@ -1,5 +1,6 @@
 defmodule Blogpub.Object do
   use Blogpub.Schema
+  alias Blogpub.APub
 
   schema "objects" do
     field :content, :map
@@ -9,13 +10,16 @@ defmodule Blogpub.Object do
     timestamps()
   end
 
-  def from_partial_object(actor, object) do
-    attrs = %{
-      content: object,
-      actor_id: actor.id
-    }
+  def new(actor, object) do
+    object =
+      object
+      |> Map.put("attributedTo", APub.actor_url(actor))
+      |> Map.replace_lazy("id", &Blogpub.rewrite_host/1)
 
-    %Object{id: Uniq.UUID.uuid7()}
-    |> cast(attrs, [:actor_id, :content])
+    %Object{
+      id: Uniq.UUID.uuid7(),
+      actor: actor,
+      content: object
+    }
   end
 end

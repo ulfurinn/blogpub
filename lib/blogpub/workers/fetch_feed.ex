@@ -21,9 +21,10 @@ defmodule Blogpub.Workers.FetchFeed do
     case HTTPoison.get(url) do
       {:ok, resp = %HTTPoison.Response{status_code: 200}} ->
         published_urls = published_urls(resp.body)
-        known_urls = known_urls(actor)
+        known_urls = known_urls(actor) |> Enum.into(MapSet.new())
 
-        (published_urls -- known_urls)
+        published_urls
+        |> Enum.reject(&(Blogpub.rewrite_host(&1) in known_urls))
         |> Enum.each(&fetch_item(actor, &1))
 
         :ok
@@ -54,8 +55,9 @@ defmodule Blogpub.Workers.FetchFeed do
     with {:ok, resp = %HTTPoison.Response{status_code: 200}} <-
            HTTPoison.get(url, %{"accept" => "application/x-blogpub-partial"}),
          {:ok, object} <- Jason.decode(resp.body) do
-      object = Blogpub.Object.from_partial_object(actor, object)
+      object = Blogpub.Object.new(actor, object)
       Repo.insert(object)
+      Blogpub.schedule_broadcast(object)
     else
       error ->
         Logger.error("Unexpected: #{inspect(error)}")
