@@ -1,4 +1,5 @@
 defmodule Blogpub.HttpSignature do
+  alias Blogpub.PublicKey
   alias __MODULE__
 
   defstruct [
@@ -88,7 +89,8 @@ defmodule Blogpub.HttpSignature do
 
   defp date_header, do: DateTime.utc_now() |> Calendar.strftime("%a, %-d %b %Y %X GMT")
 
-  def verify(signature, key) do
+  def verify(signature, %PublicKey{pem: pem}) do
+    key = HttpSignature.decode_pem(pem)
     %HttpSignature{headers: headers, data: data, signature: given_signature} = signature
 
     signed_string =

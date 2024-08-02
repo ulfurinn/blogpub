@@ -47,7 +47,8 @@ config :blogpub,
         public: file_read_silent.("notes-public.pem")
       }
     }
-  }
+  },
+  hackney_options: [:insecure]
 
 config :blogpub, Oban,
   plugins: [

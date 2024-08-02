@@ -64,8 +64,8 @@ defmodule Blogpub do
     key = get_stored_key(url, repo) || fetch_and_store_key(url, repo)
 
     case key do
-      %PublicKey{pem: pem} ->
-        {:ok, HttpSignature.decode_pem(pem)}
+      %PublicKey{} ->
+        {:ok, key}
 
       err ->
         Logger.error("failed to retrieve public key #{url}: #{inspect(err)}")
@@ -83,7 +83,7 @@ defmodule Blogpub do
 
   defp fetch_and_store_key(url, repo) do
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.get(url, accept: "application/activity+json"),
+           HTTPoison.get(url, [accept: "application/activity+json"], hackney: hackney_options()),
          {:ok, object} <- Jason.decode(body) do
       store_key(object, repo)
     else
@@ -127,7 +127,7 @@ defmodule Blogpub do
 
   defp fetch_and_store_actor(url, repo) do
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.get(url, accept: "application/activity+json"),
+           HTTPoison.get(url, [accept: "application/activity+json"], hackney: hackney_options()),
          {:ok, object} <- Jason.decode(body) do
       store_actor(object, repo)
     else
@@ -282,6 +282,7 @@ defmodule Blogpub do
   def make_request(from_actor, to_actor, activity) do
     request = signed_request(from_actor, to_actor, activity)
     Logger.info("posting: " <> request.body)
+    request = %HTTPoison.Request{request | options: [hackney: hackney_options()]}
     request |> HTTPoison.request()
   end
 
@@ -296,6 +297,8 @@ defmodule Blogpub do
 
   defp inbox_url(url) when is_binary(url), do: url
   defp inbox_url(%Actor{object: %{"inbox" => url}}), do: url
+
+  defp hackney_options, do: Application.get_env(:blogpub, :hackney_options, [])
 
   defp private_key(actor),
     do:
