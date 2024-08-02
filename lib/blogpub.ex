@@ -8,6 +8,7 @@ defmodule Blogpub do
   """
 
   import Ecto.Query
+  alias Blogpub.Like
   alias Blogpub.APub
   alias Blogpub.Activity
   alias Blogpub.Actor
@@ -148,6 +149,14 @@ defmodule Blogpub do
     end
   end
 
+  def object(url, repo) do
+    q =
+      from o in Object,
+        where: o.content["id"] == ^url
+
+    repo.one(q)
+  end
+
   def followers_count(actor) do
     Repo.aggregate(followers_base(actor), :count)
   end
@@ -228,6 +237,30 @@ defmodule Blogpub do
     object = local_actor_by_url(object, Blogpub.Repo) |> repo.preload([:public_key, :followers])
 
     :ok = remove_follower(object, actor, repo)
+    {:ok, nil}
+  end
+
+  defp execute_activity(%{"type" => "Like", "actor" => actor, "object" => object}, repo) do
+    actor = actor(actor, repo)
+    object = object(object, repo)
+    like = %Like{actor: actor, object: object}
+    repo.insert(like)
+    {:ok, nil}
+  end
+
+  defp execute_activity(
+         %{"type" => "Undo", "actor" => actor, "object" => ref = %{"type" => "Like"}},
+         repo
+       ) do
+    %{"actor" => ^actor, "object" => object} = ref
+    actor = actor(actor, repo)
+    object = object(object, repo)
+
+    q =
+      from l in Like,
+        where: l.actor_id == ^actor.id and l.object_id == ^object.id
+
+    repo.delete_all(q)
     {:ok, nil}
   end
 
