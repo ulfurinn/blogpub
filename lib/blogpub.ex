@@ -8,6 +8,7 @@ defmodule Blogpub do
   """
 
   import Ecto.Query
+  alias Blogpub.Announce
   alias Blogpub.Like
   alias Blogpub.APub
   alias Blogpub.Activity
@@ -259,6 +260,30 @@ defmodule Blogpub do
     q =
       from l in Like,
         where: l.actor_id == ^actor.id and l.object_id == ^object.id
+
+    repo.delete_all(q)
+    {:ok, nil}
+  end
+
+  defp execute_activity(%{"type" => "Announce", "actor" => actor, "object" => object}, repo) do
+    actor = actor(actor, repo)
+    object = object(object, repo)
+    announce = %Announce{actor: actor, object: object}
+    repo.insert(announce)
+    {:ok, nil}
+  end
+
+  defp execute_activity(
+         %{"type" => "Undo", "actor" => actor, "object" => ref = %{"type" => "Announce"}},
+         repo
+       ) do
+    %{"actor" => ^actor, "object" => object} = ref
+    actor = actor(actor, repo)
+    object = object(object, repo)
+
+    q =
+      from a in Announce,
+        where: a.actor_id == ^actor.id and a.object_id == ^object.id
 
     repo.delete_all(q)
     {:ok, nil}
