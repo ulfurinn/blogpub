@@ -36,7 +36,7 @@ defmodule Blogpub.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
       {:finch, "~> 0.18"},
-      {:gettext, "~> 0.24"},
+      {:gettext, "~> 0.25"},
       {:httpoison, "~> 2.0"},
       {:jason, "~> 1.2"},
       {:oban, "~> 2.17"},
