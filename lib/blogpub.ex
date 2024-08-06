@@ -289,6 +289,42 @@ defmodule Blogpub do
     {:ok, nil}
   end
 
+  defp execute_activity(
+         %{"type" => "Create", "actor" => actor, "object" => object = %{"inReplyTo" => parent}},
+         repo
+       ) do
+    actor = actor(actor, repo)
+    parent = object(parent, repo)
+
+    object = %Object{
+      id: Uniq.UUID.uuid7(),
+      actor: actor,
+      reply_to_object: parent,
+      content: object
+    }
+
+    repo.insert(object)
+    {:ok, nil}
+  end
+
+  defp execute_activity(
+         %{
+           "type" => "Delete",
+           "actor" => actor,
+           "object" => content = %{"id" => id, "type" => "Tombstone"}
+         },
+         repo
+       ) do
+    actor = actor(actor, repo)
+    object = object(id, repo) |> Repo.preload(:actor)
+
+    if object && object.actor.id == actor.id do
+      repo.update(Ecto.Changeset.change(object, content: content))
+    end
+
+    {:ok, nil}
+  end
+
   defp execute_activity(activity, _) do
     Logger.error("activity type #{activity["type"]} not implemented")
     dbg(activity)
