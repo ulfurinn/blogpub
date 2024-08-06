@@ -6,6 +6,7 @@ defmodule Blogpub.Object do
     field :content, :map
 
     belongs_to :actor, Blogpub.Actor
+    belongs_to :reply_to_object, __MODULE__
 
     timestamps()
   end
