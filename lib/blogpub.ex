@@ -175,6 +175,19 @@ defmodule Blogpub do
     |> Ecto.Multi.run(:result, fn repo, %{activity: activity} ->
       execute_activity(activity, repo)
     end)
+    |> Ecto.Multi.run(:processed, fn repo, %{activity: activity, result: result} ->
+      case result do
+        :not_implemented ->
+          {:ok, nil}
+
+        _ ->
+          activity
+          |> Activity.processed()
+          |> repo.update()
+      end
+
+      {:ok, nil}
+    end)
     |> Blogpub.Repo.transaction()
     |> case do
       {:ok, _} -> :ok
@@ -328,7 +341,7 @@ defmodule Blogpub do
   defp execute_activity(activity, _) do
     Logger.error("activity type #{activity["type"]} not implemented")
     dbg(activity)
-    {:ok, nil}
+    {:ok, :not_implemented}
   end
 
   defp add_follower(object, actor, repo) do
