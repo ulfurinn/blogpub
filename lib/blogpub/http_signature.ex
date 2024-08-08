@@ -87,7 +87,7 @@ defmodule Blogpub.HttpSignature do
     headers |> Enum.filter(fn {k, _} -> k in names end)
   end
 
-  defp date_header, do: DateTime.utc_now() |> Calendar.strftime("%a, %-d %b %Y %X GMT")
+  defp date_header, do: DateTime.utc_now() |> Calendar.strftime("%a, %0d %b %Y %X GMT")
 
   def verify(signature, %PublicKey{pem: pem}) do
     key = HttpSignature.decode_pem(pem)
